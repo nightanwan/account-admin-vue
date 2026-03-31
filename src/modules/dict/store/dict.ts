@@ -3,7 +3,7 @@ import { computed, reactive, toRaw } from 'vue';
 import { service } from '/@/cool';
 import { deepTree } from '/@/cool/utils';
 import { isDev } from '/@/config';
-import { assign, isArray, orderBy } from 'lodash-es';
+import { assign, isArray, isString, orderBy } from 'lodash-es';
 import { deepFind, isEmpty } from '../utils';
 
 const useDictStore = defineStore('dict', () => {
@@ -19,6 +19,18 @@ const useDictStore = defineStore('dict', () => {
 	function find(name: Dict.Key, value: any | any[]) {
 		const arr = isArray(value) ? value : [value];
 		return arr.filter(e => e !== undefined).map(v => deepFind(v, get(name).value));
+	}
+
+	function getLabel(name: string | any[], value: any): string {
+		const arr: any[] = String(value)?.split(',') || [];
+
+		return arr
+			.map(e => {
+				const items = isString(name) ? get(name).value : name;
+				return (items as any[]).find(a => a.value == e)?.label;
+			})
+			.filter(Boolean)
+			.join(',');
 	}
 
 	// 刷新
@@ -58,6 +70,7 @@ const useDictStore = defineStore('dict', () => {
 		data,
 		get,
 		find,
+		getLabel,
 		refresh
 	};
 });

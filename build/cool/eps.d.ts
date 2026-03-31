@@ -1,4 +1,171 @@
 declare namespace Eps {
+	interface AccountEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 平台
+		 */
+		type?: number;
+
+		/**
+		 * UID
+		 */
+		uid?: string;
+
+		/**
+		 * 标题
+		 */
+		title?: string;
+
+		/**
+		 * 抖音号
+		 */
+		douyinNum?: string;
+
+		/**
+		 * 分类
+		 */
+		category?: any;
+
+		/**
+		 * 粉丝年龄
+		 */
+		fansAge?: any;
+
+		/**
+		 * 出售价格
+		 */
+		salePrice?: number;
+
+		/**
+		 * 底价
+		 */
+		lowestPrice?: number;
+
+		/**
+		 * 粉丝数量(万)
+		 */
+		fansCount?: number;
+
+		/**
+		 * 粉丝偏向
+		 */
+		fansDirect?: number;
+
+		/**
+		 * 粉丝偏向比例
+		 */
+		fansDirectNum?: number;
+
+		/**
+		 * 粉丝活跃度
+		 */
+		fansActive?: number;
+
+		/**
+		 * 粉丝活跃度比例
+		 */
+		fansActiveRate?: number;
+
+		/**
+		 * 开通橱窗
+		 */
+		showcaseStatus?: number;
+
+		/**
+		 * 开通直播
+		 */
+		liveStatus?: number;
+
+		/**
+		 * 认证主体
+		 */
+		authenticationType?: number;
+
+		/**
+		 * 违规情况
+		 */
+		punishStatus?: number;
+
+		/**
+		 * 星图实名认证
+		 */
+		starImgAuth?: number;
+
+		/**
+		 * 开通小店
+		 */
+		smallShopStatus?: number;
+
+		/**
+		 * 八大人群
+		 */
+		eightPeople?: any;
+
+		/**
+		 * 粉丝设备
+		 */
+		fansDevice?: any;
+
+		/**
+		 * 是否改实名
+		 */
+		authStatus?: number;
+
+		/**
+		 * 直播版权号
+		 */
+		livesVersion?: number;
+
+		/**
+		 * 点赞比异常
+		 */
+		isAbnormal?: number;
+
+		/**
+		 * 业务图片
+		 */
+		businessUrl?: any;
+
+		/**
+		 * 聊天记录
+		 */
+		chatHisUrl?: any;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 部门ID
+		 */
+		departmentId?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createUserId?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	interface BaseSysDepartmentEntity {
 		/**
 		 * ID
@@ -961,26 +1128,6 @@ declare namespace Eps {
 		description?: string;
 
 		/**
-		 * 生日
-		 */
-		birthday?: string;
-
-		/**
-		 * 省
-		 */
-		province?: string;
-
-		/**
-		 * 市
-		 */
-		city?: string;
-
-		/**
-		 * 区
-		 */
-		district?: string;
-
-		/**
 		 * 创建时间
 		 */
 		createTime?: string;
@@ -1084,6 +1231,11 @@ declare namespace Eps {
 	interface UserInfoPageResponse {
 		pagination: PagePagination;
 		list: UserInfoEntity[];
+	}
+
+	interface AccountAccountPageResponse {
+		pagination: PagePagination;
+		list: AccountEntity[];
 	}
 
 	interface BaseCoding {
@@ -2194,6 +2346,71 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface AccountAccount {
+		/**
+		 * 提交审核
+		 */
+		submitToAudit(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<AccountEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<AccountEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<AccountAccountPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			submitToAudit: string;
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			submitToAudit: boolean;
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -2206,7 +2423,25 @@ declare namespace Eps {
 
 	type Request = (options: RequestOptions) => Promise<any>;
 
-	type DictKey = "brand" | "occupation";
+	type DictKey =
+		| "brand"
+		| "occupation"
+		| "account_category"
+		| "account_fansAge"
+		| "account_fansDirect"
+		| "account_fansActive"
+		| "showcaseStatus"
+		| "liveStatus"
+		| "authenticationType"
+		| "punishStatus"
+		| "starImgAuth"
+		| "smallShopStatus"
+		| "eightPeople"
+		| "fansDevice"
+		| "authStatus"
+		| "livesVersion"
+		| "isAbnormal"
+		| "account_status";
 
 	type Service = {
 		request: Request;
@@ -2231,5 +2466,6 @@ declare namespace Eps {
 		space: { info: SpaceInfo; type: SpaceType };
 		task: { info: TaskInfo };
 		user: { address: UserAddress; info: UserInfo };
+		account: { account: AccountAccount };
 	};
 }
