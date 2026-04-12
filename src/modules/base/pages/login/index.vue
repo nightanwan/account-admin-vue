@@ -21,37 +21,17 @@
 						/>
 					</el-form-item>
 
-					<el-form-item :label="$t('密码')">
-						<el-input
-							v-model="form.password"
-							type="password"
-							:placeholder="$t('请输入密码')"
-							maxlength="20"
-							show-password
-							autocomplete="new-password"
-						/>
-					</el-form-item>
-
-					<el-form-item :label="$t('验证码')">
-						<el-input
-							v-model="form.verifyCode"
-							:placeholder="$t('验证码')"
-							maxlength="4"
-							@keyup.enter="toLogin"
-						>
-							<template #suffix>
-								<pic-captcha
-									:ref="setRefs('picCaptcha')"
-									v-model="form.captchaId"
-									@change="
-										() => {
-											form.verifyCode = '';
-										}
-									"
-								/>
-							</template>
-						</el-input>
-					</el-form-item>
+				<el-form-item :label="$t('密码')">
+					<el-input
+						v-model="form.password"
+						type="password"
+						:placeholder="$t('请输入密码')"
+						maxlength="20"
+						show-password
+						autocomplete="new-password"
+						@keyup.enter="toLogin"
+					/>
+				</el-form-item>
 
 					<div class="op">
 						<el-button type="primary" :loading="saving" @click="toLogin">
@@ -81,9 +61,8 @@ import { useCool } from '/@/cool';
 import { useBase } from '/$/base';
 import { storage } from '/@/cool/utils';
 import { useI18n } from 'vue-i18n';
-import PicCaptcha from './components/pic-captcha.vue';
 
-const { refs, setRefs, router, service } = useCool();
+const { router, service } = useCool();
 const { user, app } = useBase();
 const { t } = useI18n();
 
@@ -93,9 +72,7 @@ const saving = ref(false);
 // 表单数据
 const form = reactive({
 	username: storage.get('username') || '',
-	password: '',
-	captchaId: '',
-	verifyCode: ''
+	password: ''
 });
 
 // 演示模式
@@ -114,10 +91,6 @@ async function toLogin() {
 		return ElMessage.error(t('密码不能为空'));
 	}
 
-	if (!form.verifyCode) {
-		return ElMessage.error(t('图片验证码不能为空'));
-	}
-
 	saving.value = true;
 
 	try {
@@ -133,10 +106,6 @@ async function toLogin() {
 		// 跳转首页
 		router.push('/');
 	} catch (err) {
-		// 刷新验证码
-		refs.picCaptcha.refresh();
-
-		// 提示错误
 		ElMessageBox.alert((err as Error).message, {
 			title: t('提示'),
 			type: 'error'
@@ -274,11 +243,6 @@ $color: #2c3142;
 				}
 			}
 
-			:deep(.pic-captcha) {
-				position: absolute;
-				right: -5px;
-				top: 0;
-			}
 		}
 
 		.op {

@@ -1014,6 +1014,150 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface TenantInfoEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 租户名称
+		 */
+		name?: string;
+
+		/**
+		 * 租户编码
+		 */
+		code?: string;
+
+		/**
+		 * 租户Logo
+		 */
+		logo?: string;
+
+		/**
+		 * 联系人
+		 */
+		contactPerson?: string;
+
+		/**
+		 * 联系电话
+		 */
+		phone?: string;
+
+		/**
+		 * 邮箱
+		 */
+		email?: string;
+
+		/**
+		 * 地址
+		 */
+		address?: string;
+
+		/**
+		 * 关联套餐ID
+		 */
+		packageId?: number;
+
+		/**
+		 * 状态 0-禁用 1-启用 2-过期
+		 */
+		status?: number;
+
+		/**
+		 * 最大账号数
+		 */
+		accountCount?: number;
+
+		/**
+		 * 过期时间
+		 */
+		expireTime?: string;
+
+		/**
+		 * 租户管理员用户ID
+		 */
+		adminUserId?: number;
+
+		/**
+		 * 备注
+		 */
+		remark?: string;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TenantPackageEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 套餐名称
+		 */
+		name?: string;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 关联菜单ID
+		 */
+		menuIdList?: any;
+
+		/**
+		 * 最大账号数
+		 */
+		accountCount?: number;
+
+		/**
+		 * 套餐价格
+		 */
+		price?: number;
+
+		/**
+		 * 备注
+		 */
+		remark?: string;
+
+		/**
+		 * 排序
+		 */
+		sort?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	interface UserAddressEntity {
 		/**
 		 * ID
@@ -1158,6 +1302,11 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface AccountAccountPageResponse {
+		pagination: PagePagination;
+		list: AccountEntity[];
+	}
+
 	interface BaseSysLogPageResponse {
 		pagination: PagePagination;
 		list: BaseSysLogEntity[];
@@ -1223,6 +1372,16 @@ declare namespace Eps {
 		list: TaskInfoEntity[];
 	}
 
+	interface TenantInfoPageResponse {
+		pagination: PagePagination;
+		list: TenantInfoEntity[];
+	}
+
+	interface TenantPackagePageResponse {
+		pagination: PagePagination;
+		list: TenantPackageEntity[];
+	}
+
 	interface UserAddressPageResponse {
 		pagination: PagePagination;
 		list: UserAddressEntity[];
@@ -1233,9 +1392,69 @@ declare namespace Eps {
 		list: UserInfoEntity[];
 	}
 
-	interface AccountAccountPageResponse {
-		pagination: PagePagination;
-		list: AccountEntity[];
+	interface AccountAccount {
+		/**
+		 * 提交审核
+		 */
+		submitToAudit(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<AccountEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<AccountEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<AccountAccountPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			submitToAudit: string;
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			submitToAudit: boolean;
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
 	}
 
 	interface BaseCoding {
@@ -1334,11 +1553,6 @@ declare namespace Eps {
 		refreshToken(data?: any): Promise<any>;
 
 		/**
-		 * 验证码
-		 */
-		captcha(data?: any): Promise<any>;
-
-		/**
 		 * 登录
 		 */
 		login(data?: any): Promise<any>;
@@ -1356,24 +1570,12 @@ declare namespace Eps {
 		/**
 		 * 权限标识
 		 */
-		permission: {
-			refreshToken: string;
-			captcha: string;
-			login: string;
-			html: string;
-			eps: string;
-		};
+		permission: { refreshToken: string; login: string; html: string; eps: string };
 
 		/**
 		 * 权限状态
 		 */
-		_permission: {
-			refreshToken: boolean;
-			captcha: boolean;
-			login: boolean;
-			html: boolean;
-			eps: boolean;
-		};
+		_permission: { refreshToken: boolean; login: boolean; html: boolean; eps: boolean };
 
 		request: Request;
 	}
@@ -2230,6 +2432,122 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface TenantInfo {
+		/**
+		 * 同步套餐菜单到租户
+		 */
+		syncPackageMenus(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TenantInfoEntity>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TenantInfoPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			syncPackageMenus: string;
+			delete: string;
+			update: string;
+			info: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			syncPackageMenus: boolean;
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TenantPackage {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TenantPackageEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TenantPackageEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TenantPackagePageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface UserAddress {
 		/**
 		 * 删除
@@ -2346,71 +2664,6 @@ declare namespace Eps {
 		request: Request;
 	}
 
-	interface AccountAccount {
-		/**
-		 * 提交审核
-		 */
-		submitToAudit(data?: any): Promise<any>;
-
-		/**
-		 * 删除
-		 */
-		delete(data?: any): Promise<any>;
-
-		/**
-		 * 修改
-		 */
-		update(data?: any): Promise<any>;
-
-		/**
-		 * 单个信息
-		 */
-		info(data?: any): Promise<AccountEntity>;
-
-		/**
-		 * 列表查询
-		 */
-		list(data?: any): Promise<AccountEntity[]>;
-
-		/**
-		 * 分页查询
-		 */
-		page(data?: any): Promise<AccountAccountPageResponse>;
-
-		/**
-		 * 新增
-		 */
-		add(data?: any): Promise<any>;
-
-		/**
-		 * 权限标识
-		 */
-		permission: {
-			submitToAudit: string;
-			delete: string;
-			update: string;
-			info: string;
-			list: string;
-			page: string;
-			add: string;
-		};
-
-		/**
-		 * 权限状态
-		 */
-		_permission: {
-			submitToAudit: boolean;
-			delete: boolean;
-			update: boolean;
-			info: boolean;
-			list: boolean;
-			page: boolean;
-			add: boolean;
-		};
-
-		request: Request;
-	}
-
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -2446,6 +2699,7 @@ declare namespace Eps {
 	type Service = {
 		request: Request;
 
+		account: { account: AccountAccount };
 		base: {
 			coding: BaseCoding;
 			comm: BaseComm;
@@ -2465,7 +2719,7 @@ declare namespace Eps {
 		recycle: { data: RecycleData };
 		space: { info: SpaceInfo; type: SpaceType };
 		task: { info: TaskInfo };
+		tenant: { info: TenantInfo; package: TenantPackage };
 		user: { address: UserAddress; info: UserInfo };
-		account: { account: AccountAccount };
 	};
 }
