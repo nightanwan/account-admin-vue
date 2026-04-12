@@ -151,11 +151,6 @@ declare namespace Eps {
 		departmentId?: number;
 
 		/**
-		 * 创建者ID
-		 */
-		createUserId?: number;
-
-		/**
 		 * 创建时间
 		 */
 		createTime?: string;
@@ -2771,7 +2766,25 @@ declare namespace Eps {
 
 	type Request = (options: RequestOptions) => Promise<any>;
 
-	type DictKey = "brand" | "occupation";
+	type DictKey =
+		| "brand"
+		| "occupation"
+		| "account_category"
+		| "account_fansAge"
+		| "account_fansDirect"
+		| "account_fansActive"
+		| "showcaseStatus"
+		| "liveStatus"
+		| "authenticationType"
+		| "punishStatus"
+		| "starImgAuth"
+		| "smallShopStatus"
+		| "eightPeople"
+		| "fansDevice"
+		| "authStatus"
+		| "livesVersion"
+		| "isAbnormal"
+		| "account_status";
 
 	type Service = {
 		request: Request;
