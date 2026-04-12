@@ -18,25 +18,22 @@
 		</cl-row>
 
 		<cl-upsert ref="Upsert">
-			<template #slot-relevance="{ scope }">
+			<template #slot-dataScope="{ scope }">
 				<div>
-					<el-row>
-						<cl-switch v-model="scope.relevance" />
+					<el-select v-model="scope.dataScope" :placeholder="$t('请选择数据范围')">
+						<el-option :label="$t('全部数据')" :value="1" />
+						<el-option :label="$t('本部门及下属部门')" :value="2" />
+						<el-option :label="$t('仅本部门')" :value="3" />
+						<el-option :label="$t('仅本人')" :value="4" />
+						<el-option :label="$t('自定义')" :value="5" />
+					</el-select>
 
-						<span
-							:style="{
-								marginLeft: '10px',
-								fontSize: '12px'
-							}"
-						>
-							{{ t('是否关联上下级') }}
-						</span>
-					</el-row>
-
-					<cl-dept-check
-						v-model="scope.departmentIdList"
-						:check-strictly="scope.relevance == 0"
-					/>
+					<div v-if="scope.dataScope === 5" style="margin-top: 10px">
+						<cl-dept-check
+							v-model="scope.departmentIdList"
+							:check-strictly="true"
+						/>
+					</div>
 				</div>
 			</template>
 		</cl-upsert>
@@ -107,9 +104,10 @@ const Upsert = useUpsert({
 		},
 		{
 			label: t('数据权限'),
-			prop: 'relevance',
+			prop: 'dataScope',
+			value: 4,
 			component: {
-				name: 'slot-relevance'
+				name: 'slot-dataScope'
 			}
 		}
 	],
@@ -117,7 +115,7 @@ const Upsert = useUpsert({
 	onSubmit(data, { next }) {
 		next({
 			...data,
-			departmentIdList: data.departmentIdList || []
+			departmentIdList: data.dataScope === 5 ? data.departmentIdList || [] : []
 		});
 	}
 });
@@ -138,6 +136,18 @@ const Table = useTable({
 			prop: 'label',
 			label: t('标识'),
 			minWidth: 120
+		},
+		{
+			prop: 'dataScope',
+			label: t('数据范围'),
+			minWidth: 120,
+			dict: [
+				{ label: t('全部数据'), value: 1, type: 'success' },
+				{ label: t('本部门及下属'), value: 2, type: 'warning' },
+				{ label: t('仅本部门'), value: 3, type: 'info' },
+				{ label: t('仅本人'), value: 4, type: 'danger' },
+				{ label: t('自定义'), value: 5, type: 'primary' }
+			]
 		},
 		{
 			prop: 'remark',

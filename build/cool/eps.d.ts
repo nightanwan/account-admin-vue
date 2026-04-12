@@ -6,6 +6,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 平台
 		 */
 		type?: number;
@@ -173,6 +178,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 部门名称
 		 */
 		name?: string;
@@ -213,6 +223,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 用户ID
@@ -260,6 +275,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 父菜单ID
@@ -334,6 +354,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 键
 		 */
 		keyName?: string;
@@ -381,6 +406,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 用户ID
 		 */
 		userId?: string;
@@ -401,9 +431,9 @@ declare namespace Eps {
 		remark?: string;
 
 		/**
-		 * 数据权限是否关联上下级
+		 * 数据范围 1-全部 2-本部门及下属 3-本部门 4-仅本人 5-自定义
 		 */
-		relevance?: boolean;
+		dataScope?: number;
 
 		/**
 		 * 菜单权限
@@ -436,6 +466,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 部门ID
@@ -525,6 +560,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 标题
 		 */
 		title?: string;
@@ -592,6 +632,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 类型ID
 		 */
 		typeId?: number;
@@ -644,6 +689,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 名称
 		 */
 		name?: string;
@@ -674,6 +724,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 名称
@@ -763,6 +818,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 表
 		 */
 		entityInfo?: any;
@@ -818,6 +878,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 地址
@@ -882,6 +947,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 类别名称
 		 */
 		name?: string;
@@ -912,6 +982,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 任务ID
@@ -1021,6 +1096,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 租户名称
 		 */
 		name?: string;
@@ -1108,6 +1188,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
 		 * 套餐名称
 		 */
 		name?: string;
@@ -1163,6 +1248,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 用户ID
@@ -1225,6 +1315,11 @@ declare namespace Eps {
 		 * ID
 		 */
 		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
 
 		/**
 		 * 登录唯一ID
@@ -2676,25 +2771,7 @@ declare namespace Eps {
 
 	type Request = (options: RequestOptions) => Promise<any>;
 
-	type DictKey =
-		| "brand"
-		| "occupation"
-		| "account_category"
-		| "account_fansAge"
-		| "account_fansDirect"
-		| "account_fansActive"
-		| "showcaseStatus"
-		| "liveStatus"
-		| "authenticationType"
-		| "punishStatus"
-		| "starImgAuth"
-		| "smallShopStatus"
-		| "eightPeople"
-		| "fansDevice"
-		| "authStatus"
-		| "livesVersion"
-		| "isAbnormal"
-		| "account_status";
+	type DictKey = "brand" | "occupation";
 
 	type Service = {
 		request: Request;
