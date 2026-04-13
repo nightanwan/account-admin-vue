@@ -1739,6 +1739,35 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface BaseSysEncrypt {
+		/**
+		 * 更新加密配置
+		 */
+		updateConfig(data?: any): Promise<any>;
+
+		/**
+		 * 生成RSA密钥对
+		 */
+		generateKeys(data?: any): Promise<any>;
+
+		/**
+		 * 获取加密配置
+		 */
+		getConfig(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { updateConfig: string; generateKeys: string; getConfig: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { updateConfig: boolean; generateKeys: boolean; getConfig: boolean };
+
+		request: Request;
+	}
+
 	interface BaseSysLog {
 		/**
 		 * 日志保存时间
@@ -2790,26 +2819,6 @@ declare namespace Eps {
 
 	type Request = (options: RequestOptions) => Promise<any>;
 
-	type DictKey =
-		| "brand"
-		| "occupation"
-		| "account_category"
-		| "account_fansAge"
-		| "account_fansDirect"
-		| "account_fansActive"
-		| "showcaseStatus"
-		| "liveStatus"
-		| "authenticationType"
-		| "punishStatus"
-		| "starImgAuth"
-		| "smallShopStatus"
-		| "eightPeople"
-		| "fansDevice"
-		| "authStatus"
-		| "livesVersion"
-		| "isAbnormal"
-		| "account_status";
-
 	type Service = {
 		request: Request;
 
@@ -2820,6 +2829,7 @@ declare namespace Eps {
 			open: BaseOpen;
 			sys: {
 				department: BaseSysDepartment;
+				encrypt: BaseSysEncrypt;
 				log: BaseSysLog;
 				menu: BaseSysMenu;
 				param: BaseSysParam;

@@ -32,6 +32,9 @@ importers:
       core-js:
         specifier: ^3.40.0
         version: 3.44.0
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -44,6 +47,9 @@ importers:
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
+      jsencrypt:
+        specifier: ^3.5.4
+        version: 3.5.4
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -93,6 +99,9 @@ importers:
       '@tsconfig/node20':
         specifier: ^20.1.4
         version: 20.1.6
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/file-saver':
         specifier: ^2.0.7
         version: 2.0.7
@@ -890,6 +899,9 @@ packages:
   '@tsconfig/node20@20.1.6':
     resolution: {integrity: sha512-sz+Hqx9zwZDpZIV871WSbUzSqNIsXzghZydypnfgzPKLltVJfkINfUeTct31n/tTSa9ZE1ZOfKdRre1uHHquYQ==}
 
+  '@types/crypto-js@4.2.2':
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
+
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -1425,6 +1437,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
@@ -2000,6 +2015,9 @@ packages:
   js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
+
+  jsencrypt@3.5.4:
+    resolution: {integrity: sha512-kNjfYEMNASxrDGsmcSQh/rUTmcoRfSUkxnAz+MMywM8jtGu+fFEZ3nJjHM58zscVnwR0fYmG9sGkTDjqUdpiwA==}
 
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
@@ -3518,6 +3536,8 @@ snapshots:
 
   '@tsconfig/node20@20.1.6': {}
 
+  '@types/crypto-js@4.2.2': {}
+
   '@types/estree@1.0.8': {}
 
   '@types/event-emitter@0.3.5': {}
@@ -4186,6 +4206,8 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  crypto-js@4.2.0: {}
+
   css-select@5.2.2:
     dependencies:
       boolbase: 1.0.0
@@ -4810,6 +4832,8 @@ snapshots:
   js-yaml@4.1.0:
     dependencies:
       argparse: 2.0.1
+
+  jsencrypt@3.5.4: {}
 
   jsesc@3.1.0: {}
 

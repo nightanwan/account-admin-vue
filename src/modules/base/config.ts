@@ -25,6 +25,13 @@ export default (): ModuleConfig => {
 					label: t('个人中心')
 				},
 				component: () => import('./views/info.vue')
+			},
+			{
+				path: '/sys/encrypt',
+				meta: {
+					label: t('安全配置')
+				},
+				component: () => import('./views/encrypt.vue')
 			}
 		],
 		pages: [

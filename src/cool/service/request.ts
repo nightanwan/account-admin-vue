@@ -4,6 +4,7 @@ import 'nprogress/nprogress.css';
 import { ElMessage } from 'element-plus';
 import { endsWith } from 'lodash-es';
 import { storage } from '/@/cool/utils';
+import { decryptResponse } from '/@/cool/utils/decrypt';
 import { useBase } from '/$/base';
 import { router } from '../router';
 import { config, isDev } from '/@/config';
@@ -118,6 +119,20 @@ request.interceptors.response.use(
 
 		if (!res?.data) {
 			return res;
+		}
+
+		// 检测加密响应并解密
+		if (res.data.encrypted) {
+			const privateKey = storage.get('rsaPrivateKey');
+			if (privateKey) {
+				const decrypted = decryptResponse(res.data, privateKey);
+				if (decrypted !== null) {
+					res.data.data = decrypted;
+					delete res.data.encrypted;
+					delete res.data.aesKey;
+					delete res.data.iv;
+				}
+			}
 		}
 
 		const { code, data, message } = res.data;
