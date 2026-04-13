@@ -1514,6 +1514,11 @@ declare namespace Eps {
 		audit(data?: any): Promise<any>;
 
 		/**
+		 * 拉黑
+		 */
+		black(data?: any): Promise<any>;
+
+		/**
 		 * 单个信息
 		 */
 		info(data?: any): Promise<AccountEntity>;
@@ -1541,6 +1546,7 @@ declare namespace Eps {
 			delete: string;
 			update: string;
 			audit: string;
+			black: string;
 			info: string;
 			list: string;
 			page: string;
@@ -1555,6 +1561,7 @@ declare namespace Eps {
 			delete: boolean;
 			update: boolean;
 			audit: boolean;
+			black: boolean;
 			info: boolean;
 			list: boolean;
 			page: boolean;
