@@ -7,6 +7,11 @@ import './static/css/index.scss';
 export default (): ModuleConfig => {
 	return {
 		order: 99,
+		toolbar: {
+			order: 0,
+			h5: false,
+			component: import('./components/notification/bell.vue')
+		},
 		ignore: {
 			NProgress: [
 				'/base/open/eps',
@@ -25,6 +30,20 @@ export default (): ModuleConfig => {
 					label: t('个人中心')
 				},
 				component: () => import('./views/info.vue')
+			},
+			{
+				path: '/my/notification',
+				meta: {
+					label: t('消息中心')
+				},
+				component: () => import('./views/notification.vue')
+			},
+			{
+				path: '/my/chat',
+				meta: {
+					label: t('聊天')
+				},
+				component: () => import('./views/chat.vue')
 			},
 			{
 				path: '/sys/config-group',

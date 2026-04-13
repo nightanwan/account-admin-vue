@@ -352,6 +352,123 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface BaseSysNotificationEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
+		 * 标题
+		 */
+		title?: string;
+
+		/**
+		 * 内容
+		 */
+		content?: string;
+
+		/**
+		 * 附件
+		 */
+		attachments?: any;
+
+		/**
+		 * 通知类型 0-公告 1-提醒 2-紧急 3-系统更新
+		 */
+		type?: number;
+
+		/**
+		 * 接收对象类型 0-全员 1-指定部门 2-指定角色 3-指定人员
+		 */
+		targetType?: number;
+
+		/**
+		 * 指定部门ID列表
+		 */
+		departmentIds?: any;
+
+		/**
+		 * 指定角色ID列表
+		 */
+		roleIds?: any;
+
+		/**
+		 * 指定用户ID列表
+		 */
+		userIds?: any;
+
+		/**
+		 * 发布方式 0-立即发布 1-定时发布
+		 */
+		publishType?: number;
+
+		/**
+		 * 定时发布时间
+		 */
+		publishTime?: Date;
+
+		/**
+		 * 是否强制提醒 0-否 1-是
+		 */
+		forceRemind?: number;
+
+		/**
+		 * 强提醒间隔（分钟）
+		 */
+		remindInterval?: number;
+
+		/**
+		 * 通知状态 0-草稿 1-已发送 2-已撤回
+		 */
+		status?: number;
+
+		/**
+		 * 实际发送时间
+		 */
+		sendTime?: Date;
+
+		/**
+		 * 发布者ID
+		 */
+		publisherId?: number;
+
+		/**
+		 * 已读人数
+		 */
+		readCount?: number;
+
+		/**
+		 * 未读人数
+		 */
+		unreadCount?: number;
+
+		/**
+		 * 总接收人数
+		 */
+		totalCount?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	interface BaseSysParamEntity {
 		/**
 		 * ID
@@ -543,6 +660,11 @@ declare namespace Eps {
 		socketId?: string;
 
 		/**
+		 * 性别
+		 */
+		sex?: number;
+
+		/**
 		 * 创建时间
 		 */
 		createTime?: string;
@@ -551,6 +673,356 @@ declare namespace Eps {
 		 * 更新时间
 		 */
 		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ChatFriendEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 用户ID
+		 */
+		userId?: number;
+
+		/**
+		 * 好友ID
+		 */
+		friendId?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: Date;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: Date;
+
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		createBy?: number;
+
+		/**
+		 * 部门ID
+		 */
+		departmentId?: number;
+
+		/**
+		 * 创建者ID
+		 */
+		userId?: number;
+
+		/**
+		 * 姓名
+		 */
+		name?: string;
+
+		/**
+		 * 用户名
+		 */
+		username?: string;
+
+		/**
+		 * 密码
+		 */
+		password?: string;
+
+		/**
+		 * 密码版本, 作用是改完密码，让原来的token失效
+		 */
+		passwordV?: number;
+
+		/**
+		 * 昵称
+		 */
+		nickName?: string;
+
+		/**
+		 * 头像
+		 */
+		headImg?: string;
+
+		/**
+		 * 手机
+		 */
+		phone?: string;
+
+		/**
+		 * 邮箱
+		 */
+		email?: string;
+
+		/**
+		 * 备注
+		 */
+		remark?: string;
+
+		/**
+		 * 状态 0-禁用 1-启用
+		 */
+		status?: number;
+
+		/**
+		 * socketId
+		 */
+		socketId?: string;
+
+		/**
+		 * 性别
+		 */
+		sex?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ChatGroupEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 名称
+		 */
+		name?: string;
+
+		/**
+		 * 公告
+		 */
+		notice?: string;
+
+		/**
+		 * 头像
+		 */
+		avatarUrl?: string;
+
+		/**
+		 * 群主
+		 */
+		masterId?: number;
+
+		/**
+		 * 会话ID
+		 */
+		sessionId?: number;
+
+		/**
+		 * 成员
+		 */
+		userIds?: any;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: Date;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: Date;
+
+		/**
+		 * 昵称
+		 */
+		masterName?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ChatSessionUserEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 用户ID
+		 */
+		userId?: number;
+
+		/**
+		 * 会话ID
+		 */
+		sessionId?: number;
+
+		/**
+		 * 群ID
+		 */
+		groupId?: number;
+
+		/**
+		 * 类型 0-单聊 1-群聊
+		 */
+		type?: number;
+
+		/**
+		 * 是否置顶 0-否 1-是
+		 */
+		isTop?: number;
+
+		/**
+		 * 是否删除 0-否 1-是
+		 */
+		isDel?: number;
+
+		/**
+		 * 是否群主 0-否 1-是
+		 */
+		isMaster?: number;
+
+		/**
+		 * 单聊对方用户ID
+		 */
+		otherId?: number;
+
+		/**
+		 * 未读消息数
+		 */
+		unread?: number;
+
+		/**
+		 * 最后已读消息ID
+		 */
+		lastReadMsgId?: number;
+
+		/**
+		 * 清空消息起点ID，该ID之前的消息不展示
+		 */
+		clearBeforeMsgId?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: Date;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: Date;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ChatMsgInfoEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 会话ID
+		 */
+		sessionId?: number;
+
+		/**
+		 * 发送者
+		 */
+		fromUserId?: number;
+
+		/**
+		 * 系统消息 0-否 1-是
+		 */
+		isSystem?: number;
+
+		/**
+		 * 消息类型 0-文本 1-图片 2-表情 3-语音 4-视频 5-文件
+		 */
+		contentType?: number;
+
+		/**
+		 * 消息内容
+		 */
+		content?: string;
+
+		/**
+		 * 数据
+		 */
+		data?: any;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: Date;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: Date;
+
+		/**
+		 * 昵称
+		 */
+		userNickName?: string;
+
+		/**
+		 * 头像
+		 */
+		userAvatarUrl?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ChatSessionInfoEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 最后一条消息
+		 */
+		lastMsg?: any;
+
+		/**
+		 * 类型 0-单聊 1-群聊
+		 */
+		type?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: Date;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: Date;
 
 		/**
 		 * 任意键值
@@ -1417,6 +1889,11 @@ declare namespace Eps {
 		list: BaseSysMenuEntity[];
 	}
 
+	interface BaseSysNoticePageResponse {
+		pagination: PagePagination;
+		list: BaseSysNotificationEntity[];
+	}
+
 	interface BaseSysParamPageResponse {
 		pagination: PagePagination;
 		list: BaseSysParamEntity[];
@@ -1430,6 +1907,36 @@ declare namespace Eps {
 	interface BaseSysUserPageResponse {
 		pagination: PagePagination;
 		list: BaseSysUserEntity[];
+	}
+
+	interface ChatFriendPageResponse {
+		pagination: PagePagination;
+		list: ChatFriendEntity[];
+	}
+
+	interface ChatGroupPageResponse {
+		pagination: PagePagination;
+		list: ChatGroupEntity[];
+	}
+
+	interface ChatImMsgPageResponse {
+		pagination: PagePagination;
+		list: any[];
+	}
+
+	interface ChatImSessionPageResponse {
+		pagination: PagePagination;
+		list: ChatSessionUserEntity[];
+	}
+
+	interface ChatMsgPageResponse {
+		pagination: PagePagination;
+		list: ChatMsgInfoEntity[];
+	}
+
+	interface ChatSessionInfoPageResponse {
+		pagination: PagePagination;
+		list: ChatSessionInfoEntity[];
 	}
 
 	interface DemoGoodsPageResponse {
@@ -1602,9 +2109,19 @@ declare namespace Eps {
 		personUpdate(data?: any): Promise<any>;
 
 		/**
+		 * 获取当前用户未读通知数量
+		 */
+		unreadCount(data?: any): Promise<any>;
+
+		/**
 		 * 文件上传模式
 		 */
 		uploadMode(data?: any): Promise<any>;
+
+		/**
+		 * 查看系统通知（分页）
+		 */
+		noticePage(data?: any): Promise<any>;
 
 		/**
 		 * 按分组编码获取配置
@@ -1615,6 +2132,11 @@ declare namespace Eps {
 		 * 权限与菜单
 		 */
 		permmenu(data?: any): Promise<any>;
+
+		/**
+		 * 标记通知已读
+		 */
+		markRead(data?: any): Promise<any>;
 
 		/**
 		 * 编程
@@ -1641,9 +2163,12 @@ declare namespace Eps {
 		 */
 		permission: {
 			personUpdate: string;
+			unreadCount: string;
 			uploadMode: string;
+			noticePage: string;
 			getConfig: string;
 			permmenu: string;
+			markRead: string;
 			program: string;
 			person: string;
 			upload: string;
@@ -1655,9 +2180,12 @@ declare namespace Eps {
 		 */
 		_permission: {
 			personUpdate: boolean;
+			unreadCount: boolean;
 			uploadMode: boolean;
+			noticePage: boolean;
 			getConfig: boolean;
 			permmenu: boolean;
+			markRead: boolean;
 			program: boolean;
 			person: boolean;
 			upload: boolean;
@@ -1914,6 +2442,78 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface BaseSysNotice {
+		/**
+		 * 重新发布通知
+		 */
+		republishNotification(data?: any): Promise<any>;
+
+		/**
+		 * 撤回通知
+		 */
+		recallNotification(data?: any): Promise<any>;
+
+		/**
+		 * 获取已读/未读人员列表
+		 */
+		getReadUserList(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<BaseSysNotificationEntity>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<BaseSysNoticePageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			republishNotification: string;
+			recallNotification: string;
+			getReadUserList: string;
+			delete: string;
+			update: string;
+			info: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			republishNotification: boolean;
+			recallNotification: boolean;
+			getReadUserList: boolean;
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface BaseSysParam {
 		/**
 		 * 删除
@@ -2086,6 +2686,456 @@ declare namespace Eps {
 			delete: boolean;
 			update: boolean;
 			move: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface ChatComm {
+		/**
+		 * 会话详情
+		 */
+		sessionDetail(data?: any): Promise<any>;
+
+		/**
+		 * 解散群聊
+		 */
+		groupDissolve(data?: any): Promise<any>;
+
+		/**
+		 * 搜索用户
+		 */
+		friendSearch(data?: any): Promise<any>;
+
+		/**
+		 * 好友详情
+		 */
+		friendDetail(data?: any): Promise<any>;
+
+		/**
+		 * 删除好友
+		 */
+		friendDelete(data?: any): Promise<any>;
+
+		/**
+		 * 我的会话列表
+		 */
+		sessionList(data?: any): Promise<any>;
+
+		/**
+		 * 查找与好友的会话
+		 */
+		sessionFind(data?: any): Promise<any>;
+
+		/**
+		 * 创建群聊
+		 */
+		groupCreate(data?: any): Promise<any>;
+
+		/**
+		 * 移除群成员
+		 */
+		groupRemove(data?: any): Promise<any>;
+
+		/**
+		 * 修改群聊信息
+		 */
+		groupModify(data?: any): Promise<any>;
+
+		/**
+		 * 我的好友列表
+		 */
+		friendList(data?: any): Promise<any>;
+
+		/**
+		 * 添加好友
+		 */
+		friendBind(data?: any): Promise<any>;
+
+		/**
+		 * 群成员列表
+		 */
+		groupUsers(data?: any): Promise<any>;
+
+		/**
+		 * 加入群聊
+		 */
+		groupJoin(data?: any): Promise<any>;
+
+		/**
+		 * 退出群聊
+		 */
+		groupQuit(data?: any): Promise<any>;
+
+		/**
+		 * 清空会话消息
+		 */
+		msgClear(data?: any): Promise<any>;
+
+		/**
+		 * 消息分页列表
+		 */
+		msgPage(data?: any): Promise<any>;
+
+		/**
+		 * 标记消息已读
+		 */
+		msgRead(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			sessionDetail: string;
+			groupDissolve: string;
+			friendSearch: string;
+			friendDetail: string;
+			friendDelete: string;
+			sessionList: string;
+			sessionFind: string;
+			groupCreate: string;
+			groupRemove: string;
+			groupModify: string;
+			friendList: string;
+			friendBind: string;
+			groupUsers: string;
+			groupJoin: string;
+			groupQuit: string;
+			msgClear: string;
+			msgPage: string;
+			msgRead: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			sessionDetail: boolean;
+			groupDissolve: boolean;
+			friendSearch: boolean;
+			friendDetail: boolean;
+			friendDelete: boolean;
+			sessionList: boolean;
+			sessionFind: boolean;
+			groupCreate: boolean;
+			groupRemove: boolean;
+			groupModify: boolean;
+			friendList: boolean;
+			friendBind: boolean;
+			groupUsers: boolean;
+			groupJoin: boolean;
+			groupQuit: boolean;
+			msgClear: boolean;
+			msgPage: boolean;
+			msgRead: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface ChatFriend {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<ChatFriendEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<ChatFriendEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatFriendPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface ChatGroup {
+		/**
+		 * dissolve
+		 */
+		dissolve(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * users
+		 */
+		users(data?: any): Promise<any>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatGroupPageResponse>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<ChatGroupEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			dissolve: string;
+			update: string;
+			delete: string;
+			users: string;
+			page: string;
+			info: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			dissolve: boolean;
+			update: boolean;
+			delete: boolean;
+			users: boolean;
+			page: boolean;
+			info: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface ChatImFriend {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<ChatFriendEntity[]>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { delete: string; list: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { delete: boolean; list: boolean };
+
+		request: Request;
+	}
+
+	interface ChatImGroup {
+		/**
+		 * 权限标识
+		 */
+		permission: {};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {};
+
+		request: Request;
+	}
+
+	interface ChatImMsg {
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatImMsgPageResponse>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { page: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { page: boolean };
+
+		request: Request;
+	}
+
+	interface ChatImSession {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<ChatSessionUserEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<ChatSessionUserEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatImSessionPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface ChatMsg {
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatMsgPageResponse>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { page: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { page: boolean };
+
+		request: Request;
+	}
+
+	interface ChatSessionInfo {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<ChatSessionInfoEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<ChatSessionInfoEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<ChatSessionInfoPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
 			info: boolean;
 			list: boolean;
 			page: boolean;
@@ -2879,10 +3929,24 @@ declare namespace Eps {
 				encrypt: BaseSysEncrypt;
 				log: BaseSysLog;
 				menu: BaseSysMenu;
+				notice: BaseSysNotice;
 				param: BaseSysParam;
 				role: BaseSysRole;
 				user: BaseSysUser;
 			};
+		};
+		chat: {
+			comm: ChatComm;
+			friend: ChatFriend;
+			group: ChatGroup;
+			im: {
+				friend: ChatImFriend;
+				group: ChatImGroup;
+				msg: ChatImMsg;
+				session: ChatImSession;
+			};
+			msg: ChatMsg;
+			session: { info: ChatSessionInfo };
 		};
 		demo: { goods: DemoGoods; tenant: DemoTenant };
 		dict: { info: DictInfo; type: DictType };
