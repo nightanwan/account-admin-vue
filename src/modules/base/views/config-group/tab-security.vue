@@ -16,7 +16,9 @@
 				<el-radio-group v-model="form.scope">
 					<el-radio value="partial">
 						部分加密
-						<span class="tab-security__hint">（仅加密带 @EncryptResponse 注解的接口）</span>
+						<span class="tab-security__hint"
+							>（仅加密带 @EncryptResponse 注解的接口）</span
+						>
 					</el-radio>
 					<el-radio value="global">
 						全局加密

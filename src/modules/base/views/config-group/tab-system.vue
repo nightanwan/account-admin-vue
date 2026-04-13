@@ -34,7 +34,11 @@
 			</el-form-item>
 
 			<el-form-item label="水印内容" v-if="form.watermarkEnabled">
-				<el-select v-model="form.watermarkType" placeholder="选择水印内容" style="width: 200px">
+				<el-select
+					v-model="form.watermarkType"
+					placeholder="选择水印内容"
+					style="width: 200px"
+				>
 					<el-option label="昵称" value="nickname" />
 					<el-option label="昵称+时间" value="nickname_time" />
 					<el-option label="站点名称" value="site_name" />
@@ -42,12 +46,21 @@
 				</el-select>
 			</el-form-item>
 
-			<el-form-item label="自定义文本" v-if="form.watermarkEnabled && form.watermarkType === 'custom'">
+			<el-form-item
+				label="自定义文本"
+				v-if="form.watermarkEnabled && form.watermarkType === 'custom'"
+			>
 				<el-input v-model="form.watermarkCustomText" placeholder="请输入自定义水印文本" />
 			</el-form-item>
 
 			<el-form-item label="水印透明度" v-if="form.watermarkEnabled">
-				<el-slider v-model="form.watermarkOpacity" :min="0" :max="100" :step="1" show-input />
+				<el-slider
+					v-model="form.watermarkOpacity"
+					:min="0"
+					:max="100"
+					:step="1"
+					show-input
+				/>
 			</el-form-item>
 		</el-form>
 	</div>
@@ -77,7 +90,7 @@ const form = ref({
 
 async function loadConfig() {
 	try {
-		const res = await service.base.sys.configGroup.getConfig({ groupCode: GROUP_CODE });
+		const res = await service.base.comm.getConfig({ groupCode: GROUP_CODE });
 		if (res) {
 			form.value = {
 				siteName: res.siteName ?? '',

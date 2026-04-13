@@ -1607,6 +1607,11 @@ declare namespace Eps {
 		uploadMode(data?: any): Promise<any>;
 
 		/**
+		 * 按分组编码获取配置
+		 */
+		getConfig(data?: any): Promise<any>;
+
+		/**
 		 * 权限与菜单
 		 */
 		permmenu(data?: any): Promise<any>;
@@ -1637,6 +1642,7 @@ declare namespace Eps {
 		permission: {
 			personUpdate: string;
 			uploadMode: string;
+			getConfig: string;
 			permmenu: string;
 			program: string;
 			person: string;
@@ -1650,6 +1656,7 @@ declare namespace Eps {
 		_permission: {
 			personUpdate: boolean;
 			uploadMode: boolean;
+			getConfig: boolean;
 			permmenu: boolean;
 			program: boolean;
 			person: boolean;
@@ -1701,19 +1708,14 @@ declare namespace Eps {
 		updateConfig(data?: any): Promise<any>;
 
 		/**
-		 * 按分组编码获取配置
-		 */
-		getConfig(data?: any): Promise<any>;
-
-		/**
 		 * 权限标识
 		 */
-		permission: { updateConfig: string; getConfig: string };
+		permission: { updateConfig: string };
 
 		/**
 		 * 权限状态
 		 */
-		_permission: { updateConfig: boolean; getConfig: boolean };
+		_permission: { updateConfig: boolean };
 
 		request: Request;
 	}
@@ -2842,6 +2844,26 @@ declare namespace Eps {
 	}
 
 	type Request = (options: RequestOptions) => Promise<any>;
+
+	type DictKey =
+		| "brand"
+		| "occupation"
+		| "account_category"
+		| "account_fansAge"
+		| "account_fansDirect"
+		| "account_fansActive"
+		| "showcaseStatus"
+		| "liveStatus"
+		| "authenticationType"
+		| "punishStatus"
+		| "starImgAuth"
+		| "smallShopStatus"
+		| "eightPeople"
+		| "fansDevice"
+		| "authStatus"
+		| "livesVersion"
+		| "isAbnormal"
+		| "account_status";
 
 	type Service = {
 		request: Request;

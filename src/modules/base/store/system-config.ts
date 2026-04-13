@@ -30,7 +30,7 @@ export const useSystemConfigStore = defineStore('system-config', function () {
 
 	async function load() {
 		try {
-			const res = await service.base.sys.configGroup.getConfig({
+			const res = await service.base.comm.getConfig({
 				groupCode: 'system'
 			});
 			if (res) {
