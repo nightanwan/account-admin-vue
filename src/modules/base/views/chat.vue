@@ -195,21 +195,37 @@
 									>
 										{{ msg.userNickName }}
 									</span>
-									<div class="chat-msg__bubble">
-										<template v-if="msg.contentType === 0">
-											{{ msg.content }}
-										</template>
-										<el-image
-											v-else-if="msg.contentType === 1"
-											:src="msg.content"
-											:preview-src-list="[msg.content]"
-											fit="cover"
-											class="chat-msg__img"
-										/>
-										<template v-else>
-											{{ formatMsgContent(msg) }}
-										</template>
+								<div class="chat-msg__bubble">
+									<template v-if="msg.contentType === 0 || msg.contentType === 2">
+										<span class="chat-msg__text">{{ msg.content }}</span>
+									</template>
+									<el-image
+										v-else-if="msg.contentType === 1"
+										:src="msg.content"
+										:preview-src-list="[msg.content]"
+										fit="cover"
+										class="chat-msg__img"
+									/>
+									<div v-else-if="msg.contentType === 3" class="chat-msg__audio">
+										<audio :src="msg.content" controls preload="metadata" />
 									</div>
+									<div v-else-if="msg.contentType === 4" class="chat-msg__video">
+										<video :src="msg.content" controls preload="metadata" />
+									</div>
+									<a
+										v-else-if="msg.contentType === 5"
+										class="chat-msg__file"
+										:href="msg.content"
+										target="_blank"
+										download
+									>
+										<el-icon :size="22"><document /></el-icon>
+										<span>{{ getFileName(msg.content) }}</span>
+									</a>
+									<template v-else>
+										{{ formatMsgContent(msg) }}
+									</template>
+								</div>
 									<span class="chat-msg__time">
 										{{ formatMsgTime(msg.createTime) }}
 									</span>
@@ -227,18 +243,99 @@
 				</el-scrollbar>
 
 				<div class="chat-main__input">
-					<el-input
-						v-model="inputMsg"
-						placeholder="输入消息..."
-						@keyup.enter="sendMessage"
-						:disabled="sending"
-					>
-						<template #append>
-							<el-button type="primary" :loading="sending" @click="sendMessage">
-								发送
-							</el-button>
-						</template>
-					</el-input>
+					<div class="chat-main__toolbar">
+						<div class="chat-main__tool-btn" title="图片" @click="triggerUpload('image')">
+							<el-icon><picture-icon /></el-icon>
+						</div>
+
+						<el-popover
+							trigger="click"
+							:width="352"
+							placement="top-start"
+							popper-class="emoji-popover"
+						>
+							<template #reference>
+								<div class="chat-main__tool-btn" title="表情">
+									<span class="chat-main__tool-emoji-char">😊</span>
+								</div>
+							</template>
+							<div class="emoji-picker">
+								<span
+									v-for="e in emojiList"
+									:key="e"
+									class="emoji-picker__item"
+									@click="insertEmoji(e)"
+								>
+									{{ e }}
+								</span>
+							</div>
+						</el-popover>
+
+						<div class="chat-main__tool-btn" title="语音" @click="triggerUpload('audio')">
+							<el-icon><headset /></el-icon>
+						</div>
+						<div class="chat-main__tool-btn" title="视频" @click="triggerUpload('video')">
+							<el-icon><video-camera /></el-icon>
+						</div>
+						<div class="chat-main__tool-btn" title="文件" @click="triggerUpload('file')">
+							<el-icon><paperclip /></el-icon>
+						</div>
+
+						<div v-if="uploading" class="chat-main__upload-tip">
+							<el-icon class="is-loading"><loading /></el-icon>
+							<span>上传中...</span>
+						</div>
+					</div>
+
+					<div class="chat-main__textarea-wrap">
+						<el-input
+							ref="textareaRef"
+							v-model="inputMsg"
+							type="textarea"
+							:rows="3"
+							resize="none"
+							placeholder="输入消息... (Enter 发送，Shift+Enter 换行)"
+							:disabled="sending || uploading"
+							@keydown="onTextareaKeydown"
+						/>
+						<el-button
+							type="primary"
+							:loading="sending"
+							:disabled="uploading"
+							class="chat-main__send-btn"
+							@click="sendMessage"
+						>
+							发送
+						</el-button>
+					</div>
+
+					<input
+						ref="imageInputRef"
+						type="file"
+						accept="image/*"
+						hidden
+						@change="onFileChange($event, 1)"
+					/>
+					<input
+						ref="audioInputRef"
+						type="file"
+						accept="audio/*"
+						hidden
+						@change="onFileChange($event, 3)"
+					/>
+					<input
+						ref="videoInputRef"
+						type="file"
+						accept="video/*"
+						hidden
+						@change="onFileChange($event, 4)"
+					/>
+					<input
+						ref="fileInputRef"
+						type="file"
+						hidden
+						@change="onFileChange($event, 5)"
+					/>
 				</div>
 			</template>
 
@@ -313,7 +410,16 @@
 defineOptions({ name: 'chat-page' });
 
 import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue';
-import { ChatDotRound, InfoFilled } from '@element-plus/icons-vue';
+import {
+	ChatDotRound,
+	InfoFilled,
+	Picture as PictureIcon,
+	Headset,
+	VideoCamera,
+	Paperclip,
+	Document,
+	Loading
+} from '@element-plus/icons-vue';
 import { io, type Socket } from 'socket.io-client';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCool } from '/@/cool';
@@ -321,11 +427,13 @@ import { useBase } from '/$/base';
 import { config } from '/@/config';
 import { useRoute } from 'vue-router';
 import { debounce } from 'lodash-es';
+import { useUpload } from '/@/plugins/upload/hooks';
 
 const { service } = useCool();
 const { user } = useBase();
 const route = useRoute();
-const chatComm = service.chat.comm;
+const chatComm = (service.chat as any).comm;
+const { toUpload } = useUpload();
 
 const userId = computed(() => user.info?.id);
 const userInfo = computed(() => user.info);
@@ -547,6 +655,85 @@ async function deleteFriend() {
 	}
 }
 
+// ========== Emoji ==========
+
+const emojiList = [
+	'😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
+	'🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘',
+	'😗', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑',
+	'🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑',
+	'😶', '😏', '😒', '🙄', '😬', '😌', '😔', '😪',
+	'😴', '😷', '🤒', '🤕', '🤢', '🥵', '🥶', '😵',
+	'🤯', '🤠', '🥳', '😎', '🤓', '😕', '😟', '🙁',
+	'😮', '😯', '😲', '😳', '🥺', '😨', '😰', '😥',
+	'😢', '😭', '😱', '😖', '😣', '😞', '😩', '😫',
+	'👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙',
+	'👋', '👏', '🙌', '🤝', '🙏', '❤️', '🔥', '⭐',
+	'🎉', '💯', '✅', '❌', '⚡', '💪', '👀', '💬'
+];
+
+const textareaRef = ref<any>(null);
+
+function insertEmoji(emoji: string) {
+	inputMsg.value += emoji;
+	nextTick(() => {
+		textareaRef.value?.focus?.();
+	});
+}
+
+// ========== 文件上传 ==========
+
+const imageInputRef = ref<HTMLInputElement>();
+const audioInputRef = ref<HTMLInputElement>();
+const videoInputRef = ref<HTMLInputElement>();
+const fileInputRef = ref<HTMLInputElement>();
+const uploading = ref(false);
+
+function triggerUpload(type: string) {
+	const refMap: Record<string, any> = {
+		image: imageInputRef,
+		audio: audioInputRef,
+		video: videoInputRef,
+		file: fileInputRef
+	};
+	refMap[type]?.value?.click();
+}
+
+async function onFileChange(e: Event, contentType: number) {
+	const input = e.target as HTMLInputElement;
+	const file = input.files?.[0];
+	if (!file || !currentSession.value) return;
+	input.value = '';
+
+	uploading.value = true;
+	try {
+		const res = await toUpload(file);
+		if (chatSocket?.connected) {
+			chatSocket.emit('send', {
+				sessionId: currentSession.value.sessionId,
+				content: res.url,
+				contentType,
+				data: { name: file.name, size: file.size }
+			});
+		}
+	} catch {
+		ElMessage.error('文件上传失败');
+	} finally {
+		uploading.value = false;
+	}
+}
+
+function getFileName(url: string) {
+	if (!url) return '文件';
+	try {
+		const decoded = decodeURIComponent(url);
+		const name = decoded.split('/').pop()?.split('?')[0] || '文件';
+		return name.length > 30 ? name.slice(0, 27) + '...' : name;
+	} catch {
+		return '文件';
+	}
+}
+
 // ========== 消息 ==========
 
 const messages = ref<any[]>([]);
@@ -592,6 +779,14 @@ async function loadMoreMessages() {
 	const newHeight = msgListRef.value?.scrollHeight || 0;
 	if (msgScrollRef.value) {
 		msgScrollRef.value.setScrollTop(newHeight - oldHeight);
+	}
+}
+
+function onTextareaKeydown(e: Event | KeyboardEvent) {
+	const ke = e as KeyboardEvent;
+	if (ke.key === 'Enter' && !ke.shiftKey) {
+		ke.preventDefault();
+		sendMessage();
 	}
 }
 
@@ -855,17 +1050,71 @@ onBeforeUnmount(() => {
 	}
 
 	&__input {
-		padding: 16px 24px;
 		border-top: 1px solid var(--el-border-color-lighter);
+		flex-shrink: 0;
+	}
 
-		:deep(.el-input-group__append) {
-			padding: 0;
+	&__toolbar {
+		display: flex;
+		align-items: center;
+		gap: 2px;
+		padding: 10px 24px 0;
+	}
 
-			.el-button {
-				margin: 0;
-				border-radius: 0 4px 4px 0;
-			}
+	&__tool-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 34px;
+		height: 34px;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: all 0.15s;
+		color: var(--el-text-color-regular);
+
+		.el-icon {
+			font-size: 20px;
 		}
+
+		&:hover {
+			color: var(--el-color-primary);
+			background: var(--el-color-primary-light-9);
+		}
+	}
+
+	&__tool-emoji-char {
+		font-size: 20px;
+		line-height: 1;
+	}
+
+	&__upload-tip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin-left: 8px;
+		font-size: 12px;
+		color: var(--el-color-primary);
+	}
+
+	&__textarea-wrap {
+		display: flex;
+		align-items: flex-end;
+		padding: 6px 24px 14px;
+		gap: 10px;
+
+		:deep(.el-textarea__inner) {
+			box-shadow: none !important;
+			padding: 8px 0;
+			font-size: 14px;
+			line-height: 1.5;
+		}
+	}
+
+	&__send-btn {
+		flex-shrink: 0;
+		height: 36px;
+		padding: 0 20px;
+		border-radius: 8px;
 	}
 
 	&__placeholder {
@@ -948,11 +1197,60 @@ onBeforeUnmount(() => {
 		word-break: break-word;
 	}
 
+	&__text {
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
 	&__img {
 		max-width: 200px;
 		max-height: 200px;
 		border-radius: 8px;
 		cursor: pointer;
+	}
+
+	&__audio {
+		audio {
+			height: 36px;
+			max-width: 240px;
+		}
+	}
+
+	&__video {
+		video {
+			max-width: 300px;
+			max-height: 220px;
+			border-radius: 8px;
+		}
+	}
+
+	&__file {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 14px;
+		background: var(--el-fill-color);
+		border-radius: 8px;
+		color: var(--el-text-color-primary);
+		text-decoration: none;
+		font-size: 13px;
+		transition: background 0.15s;
+		max-width: 260px;
+
+		&:hover {
+			background: var(--el-fill-color-dark);
+		}
+
+		.el-icon {
+			flex-shrink: 0;
+			color: var(--el-text-color-secondary);
+		}
+
+		span {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 
 	&__time {
@@ -1059,6 +1357,36 @@ onBeforeUnmount(() => {
 .friend-drawer {
 	.el-drawer__body {
 		padding: 0 !important;
+	}
+}
+
+.emoji-popover {
+	padding: 10px !important;
+}
+
+.emoji-picker {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 2px;
+	max-height: 260px;
+	overflow-y: auto;
+
+	&__item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 22px;
+		width: 38px;
+		height: 38px;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 0.12s;
+		user-select: none;
+
+		&:hover {
+			background: var(--el-fill-color-light);
+			transform: scale(1.15);
+		}
 	}
 }
 </style>
