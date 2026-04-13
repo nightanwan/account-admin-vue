@@ -151,6 +151,16 @@ declare namespace Eps {
 		departmentId?: number;
 
 		/**
+		 * 是否拉黑
+		 */
+		isBlack?: number;
+
+		/**
+		 * 拉黑理由
+		 */
+		blackReason?: string;
+
+		/**
 		 * 创建时间
 		 */
 		createTime?: string;
@@ -1499,6 +1509,11 @@ declare namespace Eps {
 		update(data?: any): Promise<any>;
 
 		/**
+		 * 审核
+		 */
+		audit(data?: any): Promise<any>;
+
+		/**
 		 * 单个信息
 		 */
 		info(data?: any): Promise<AccountEntity>;
@@ -1525,6 +1540,7 @@ declare namespace Eps {
 			submitToAudit: string;
 			delete: string;
 			update: string;
+			audit: string;
 			info: string;
 			list: string;
 			page: string;
@@ -1538,6 +1554,7 @@ declare namespace Eps {
 			submitToAudit: boolean;
 			delete: boolean;
 			update: boolean;
+			audit: boolean;
 			info: boolean;
 			list: boolean;
 			page: boolean;

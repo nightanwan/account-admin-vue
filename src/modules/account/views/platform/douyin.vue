@@ -23,6 +23,9 @@
 						<el-button type="primary" text>更多</el-button>
 						<template #dropdown>
 							<el-dropdown-menu>
+								<div v-permission="service.account.account.permission.info">
+									<el-dropdown-item command="info"> 查看详情 </el-dropdown-item>
+								</div>
 								<div
 									v-permission="service.account.account.permission.submitToAudit"
 								>
@@ -37,6 +40,15 @@
 						</template>
 					</el-dropdown>
 				</template>
+				<template #slot-audit="{ scope }">
+					<el-button
+						v-permission="service.account.account.permission.audit"
+						type="primary"
+						text
+						@click="audit(scope.row)"
+						>审核</el-button
+					>
+				</template>
 			</cl-table>
 		</cl-row>
 
@@ -47,7 +59,11 @@
 		</cl-row>
 
 		<!-- 新增、编辑 -->
-		<cl-upsert ref="Upsert" />
+		<cl-upsert ref="Upsert">
+			<template #slot-audit="{ scope }">
+				<el-button type="primary" @click="doAudit(scope)">审核</el-button>
+			</template>
+		</cl-upsert>
 	</cl-crud>
 </template>
 
@@ -69,6 +85,9 @@ const handleCommand = (command: string, row: any) => {
 	switch (command) {
 		case 'submit-to-audit':
 			submitToAudit(row.id);
+			break;
+		case 'info':
+			info(row);
 			break;
 	}
 };
@@ -94,6 +113,62 @@ const submitToAudit = (id: number) => {
 				});
 		})
 		.catch(() => {});
+};
+
+// 表格中的审核按钮：打开表单查看详情
+const audit = (row: any) => {
+	Upsert.value?.edit(row);
+};
+
+// 表单中的审核按钮：调用后端审核接口
+const doAudit = (form: any) => {
+	ElMessageBox.confirm('请选择审核操作', '审核', {
+		confirmButtonText: '通过',
+		cancelButtonText: '驳回',
+		distinguishCancelAndClose: true,
+		type: 'warning'
+	})
+		.then(() => {
+			service.account.account
+				.audit({ id: form.id, status: 2 })
+				.then(() => {
+					ElMessage.success('审核通过');
+					Upsert.value?.close();
+					Crud.value?.refresh();
+				})
+				.catch((err: any) => {
+					ElMessage.error(err.message || err);
+				});
+		})
+		.catch((action: string) => {
+			if (action !== 'cancel') return;
+			ElMessageBox.prompt('请输入驳回原因', '驳回', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				inputType: 'textarea',
+				inputValidator: (val: string) => {
+					if (!val || !val.trim()) return '驳回原因不能为空';
+					return true;
+				}
+			})
+				.then(({ value }) => {
+					service.account.account
+						.audit({ id: form.id, status: 8, reason: value })
+						.then(() => {
+							ElMessage.success('已驳回');
+							Upsert.value?.close();
+							Crud.value?.refresh();
+						})
+						.catch((err: any) => {
+							ElMessage.error(err.message || err);
+						});
+				})
+				.catch(() => {});
+		});
+};
+// 查看详情
+const info = async (row: any) => {
+	Upsert.value?.info(row);
 };
 
 const generateTitle = () => {
@@ -515,6 +590,9 @@ const Upsert = useUpsert({
 			...data,
 			type: 0
 		});
+	},
+	op: {
+		buttons: ['close', 'save', 'slot-audit']
 	}
 });
 
@@ -564,7 +642,7 @@ const Table = useTable({
 		},
 		{
 			type: 'op',
-			buttons: ['slot-more', 'edit', 'delete'],
+			buttons: ['slot-more', 'edit', 'delete', 'slot-audit'],
 			width: 260
 		}
 	]
