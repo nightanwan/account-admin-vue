@@ -1694,6 +1694,30 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface BaseSysConfigGroup {
+		/**
+		 * 按分组编码更新配置
+		 */
+		updateConfig(data?: any): Promise<any>;
+
+		/**
+		 * 按分组编码获取配置
+		 */
+		getConfig(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { updateConfig: string; getConfig: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { updateConfig: boolean; getConfig: boolean };
+
+		request: Request;
+	}
+
 	interface BaseSysDepartment {
 		/**
 		 * 删除
@@ -2828,6 +2852,7 @@ declare namespace Eps {
 			comm: BaseComm;
 			open: BaseOpen;
 			sys: {
+				configGroup: BaseSysConfigGroup;
 				department: BaseSysDepartment;
 				encrypt: BaseSysEncrypt;
 				log: BaseSysLog;

@@ -1,39 +1,30 @@
 <template>
-	<div class="encrypt-config">
-		<div class="encrypt-config__header">
-			<el-button type="primary" @click="handleSave" :loading="saving">
-				保存配置
-			</el-button>
+	<div class="tab-security">
+		<div class="tab-security__header">
+			<el-button type="primary" @click="handleSave" :loading="saving">保存配置</el-button>
 			<el-button @click="handleRefresh">刷新缓存</el-button>
 		</div>
 
 		<el-divider />
 
-		<el-form :model="form" label-width="100px" class="encrypt-config__form">
-			<!-- 接口加密开关 -->
+		<el-form :model="form" label-width="100px" class="tab-security__form">
 			<el-form-item label="接口加密">
 				<el-switch v-model="form.enabled" />
 			</el-form-item>
 
-			<!-- 加密范围 -->
 			<el-form-item label="加密范围">
 				<el-radio-group v-model="form.scope">
 					<el-radio value="partial">
 						部分加密
-						<span class="encrypt-config__hint">
-							（仅加密带 @EncryptResponse 注解的接口）
-						</span>
+						<span class="tab-security__hint">（仅加密带 @EncryptResponse 注解的接口）</span>
 					</el-radio>
 					<el-radio value="global">
 						全局加密
-						<span class="encrypt-config__hint">
-							（所有接口返回都加密）
-						</span>
+						<span class="tab-security__hint">（所有接口返回都加密）</span>
 					</el-radio>
 				</el-radio-group>
 			</el-form-item>
 
-			<!-- RSA 公钥 -->
 			<el-form-item label="RSA公钥">
 				<el-input
 					v-model="form.rsaPublicKey"
@@ -44,7 +35,6 @@
 				/>
 			</el-form-item>
 
-			<!-- RSA 私钥 -->
 			<el-form-item label="RSA私钥">
 				<el-input
 					v-model="form.rsaPrivateKey"
@@ -55,7 +45,6 @@
 				/>
 			</el-form-item>
 
-			<!-- 生成密钥 -->
 			<el-form-item label="生成密钥">
 				<el-button type="primary" @click="handleGenerateKeys" :loading="generating">
 					{{ form.rsaPublicKey ? '重新生成密钥' : '生成密钥' }}
@@ -66,10 +55,6 @@
 </template>
 
 <script lang="ts" setup>
-defineOptions({
-	name: 'sys-encrypt'
-});
-
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCool } from '/@/cool';
@@ -157,11 +142,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.encrypt-config {
-	padding: 20px;
-	background: var(--el-bg-color);
-	border-radius: 6px;
-
+.tab-security {
 	&__header {
 		display: flex;
 		align-items: center;

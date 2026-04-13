@@ -1,5 +1,32 @@
 <template>
-	<div class="app-layout" :class="{ 'is-collapse': app.isFold, 'is-full': app.isFull }">
+	<el-watermark
+		v-if="systemConfig.config.watermarkEnabled"
+		:content="watermarkText"
+		:font="watermarkFont"
+		:gap="[100, 100]"
+		:offset="[50, 50]"
+		class="app-watermark"
+	>
+		<div class="app-layout" :class="{ 'is-collapse': app.isFold, 'is-full': app.isFull }">
+			<div class="app-layout__mask" @click="app.fold(true)"></div>
+
+			<div class="app-layout__left">
+				<slider />
+			</div>
+
+			<div class="app-layout__right">
+				<topbar />
+				<process />
+				<views />
+			</div>
+		</div>
+	</el-watermark>
+
+	<div
+		v-else
+		class="app-layout"
+		:class="{ 'is-collapse': app.isFold, 'is-full': app.isFull }"
+	>
 		<div class="app-layout__mask" @click="app.fold(true)"></div>
 
 		<div class="app-layout__left">
@@ -19,16 +46,71 @@ defineOptions({
 	name: 'app-layout'
 });
 
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useBase } from '/$/base';
 import Topbar from './components/topbar.vue';
 import Slider from './components/slider.vue';
 import process from './components/process.vue';
 import Views from './components/views.vue';
 
-const { app } = useBase();
+const { app, user, systemConfig } = useBase();
+
+function formatTime(date: Date) {
+	const y = date.getFullYear();
+	const M = date.getMonth() + 1;
+	const d = date.getDate();
+	const h = String(date.getHours()).padStart(2, '0');
+	const m = String(date.getMinutes()).padStart(2, '0');
+	const s = String(date.getSeconds()).padStart(2, '0');
+	return `${y}-${M}-${d} ${h}:${m}:${s}`;
+}
+
+const now = ref(formatTime(new Date()));
+let timer: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+	timer = setInterval(() => {
+		now.value = formatTime(new Date());
+	}, 1000);
+});
+
+onUnmounted(() => {
+	if (timer) clearInterval(timer);
+});
+
+const watermarkText = computed(() => {
+	const cfg = systemConfig.config;
+	const userInfo = user.info;
+
+	switch (cfg.watermarkType) {
+		case 'nickname':
+			return userInfo?.nickName || userInfo?.username || '';
+		case 'nickname_time':
+			return [
+				userInfo?.nickName || userInfo?.username || '',
+				now.value
+			];
+		case 'site_name':
+			return cfg.siteName || app.info.name || '';
+		case 'custom':
+			return cfg.watermarkCustomText || '';
+		default:
+			return '';
+	}
+});
+
+const watermarkFont = computed(() => ({
+	color: `rgba(0, 0, 0, ${(systemConfig.config.watermarkOpacity || 15) / 100})`,
+	fontSize: 16
+}));
 </script>
 
 <style lang="scss" scoped>
+.app-watermark {
+	height: 100%;
+	width: 100%;
+}
+
 .app-global {
 	position: absolute;
 	left: 0;

@@ -27,11 +27,11 @@ export default (): ModuleConfig => {
 				component: () => import('./views/info.vue')
 			},
 			{
-				path: '/sys/encrypt',
+				path: '/sys/config-group',
 				meta: {
-					label: t('安全配置')
+					label: t('系统配置')
 				},
-				component: () => import('./views/encrypt.vue')
+				component: () => import('./views/config-group.vue')
 			}
 		],
 		pages: [
@@ -73,7 +73,7 @@ export default (): ModuleConfig => {
 			}
 		},
 		async onLoad() {
-			const { user, menu, app } = useStore();
+			const { user, menu, app, systemConfig } = useStore();
 
 			// token 事件
 			async function hasToken(cb: () => Promise<any> | void) {
@@ -91,6 +91,8 @@ export default (): ModuleConfig => {
 				user.get();
 				// 获取菜单权限
 				await menu.get();
+				// 获取系统配置
+				await systemConfig.load();
 			});
 
 			return {
