@@ -7,7 +7,7 @@
 
 		<el-divider />
 
-		<el-form :model="form" label-width="100px" class="tab-security__form">
+		<el-form :model="form" label-width="120px" class="tab-security__form">
 			<el-form-item label="接口加密">
 				<el-switch v-model="form.enabled" />
 			</el-form-item>
@@ -17,39 +17,76 @@
 					<el-radio value="partial">
 						部分加密
 						<span class="tab-security__hint"
-							>（仅加密带 @EncryptResponse 注解的接口）</span
+							>（仅加密带 @EncryptResponse 注解或指定路径的接口）</span
 						>
 					</el-radio>
 					<el-radio value="global">
 						全局加密
-						<span class="tab-security__hint">（所有接口返回都加密）</span>
+						<span class="tab-security__hint">（后台和应用接口返回都加密）</span>
 					</el-radio>
 				</el-radio-group>
 			</el-form-item>
 
-			<el-form-item label="RSA公钥">
+			<el-form-item label="强制请求加密">
+				<el-switch v-model="form.requestRequired" />
+				<span class="tab-security__hint"
+					>开启后，加密接口的请求若未加密会被拒绝；前端始终尽力加密，此开关只控制后端是否强制校验</span
+				>
+			</el-form-item>
+
+			<el-form-item label="强制响应加密">
+				<el-switch v-model="form.responseRequired" />
+				<span class="tab-security__hint"
+					>关闭后，即使接口在加密范围内，响应也会以明文返回</span
+				>
+			</el-form-item>
+
+			<el-form-item label="协议算法">
+				<el-input v-model="form.algorithm" readonly />
+			</el-form-item>
+
+			<el-form-item label="密钥标识">
+				<el-input v-model="form.keyId" readonly placeholder="保存或生成密钥后自动生成" />
+			</el-form-item>
+
+			<el-form-item label="服务端公钥">
 				<el-input
-					v-model="form.rsaPublicKey"
+					v-model="form.serverPublicKey"
 					type="textarea"
 					:rows="5"
 					readonly
-					placeholder="请先生成密钥"
+					placeholder="保存或生成密钥后自动生成"
 				/>
 			</el-form-item>
 
-			<el-form-item label="RSA私钥">
+			<el-form-item label="服务端私钥">
+				<el-tag :type="form.hasServerPrivateKey ? 'success' : 'warning'">
+					{{ form.hasServerPrivateKey ? '已生成' : '未生成' }}
+				</el-tag>
+				<span class="tab-security__hint">私钥仅保存在服务端，不再返回前端</span>
+			</el-form-item>
+
+			<el-form-item label="加密路径">
 				<el-input
-					v-model="form.rsaPrivateKey"
+					v-model="form.includeUrls"
 					type="textarea"
-					:rows="5"
-					readonly
-					placeholder="请先生成密钥"
+					:rows="4"
+					placeholder="/admin/demo/goods/info"
+				/>
+			</el-form-item>
+
+			<el-form-item label="排除路径">
+				<el-input
+					v-model="form.excludeUrls"
+					type="textarea"
+					:rows="4"
+					placeholder="/admin/base/comm/upload"
 				/>
 			</el-form-item>
 
 			<el-form-item label="生成密钥">
 				<el-button type="primary" @click="handleGenerateKeys" :loading="generating">
-					{{ form.rsaPublicKey ? '重新生成密钥' : '生成密钥' }}
+					{{ form.keyId ? '重新生成密钥' : '生成密钥' }}
 				</el-button>
 			</el-form-item>
 		</el-form>
@@ -60,29 +97,57 @@
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCool } from '/@/cool';
+import { interfaceEncryption } from '/@/cool/utils/encrypt';
 
 const { service } = useCool();
 
 const form = ref({
 	enabled: false,
 	scope: 'global' as 'global' | 'partial',
-	rsaPublicKey: '',
-	rsaPrivateKey: ''
+	requestRequired: false,
+	responseRequired: true,
+	algorithm: 'ECDH-P256-AES-256-GCM',
+	keyId: '',
+	serverPublicKey: '',
+	hasServerPrivateKey: false,
+	includeUrls: '',
+	excludeUrls: ''
 });
 
 const saving = ref(false);
 const generating = ref(false);
 
+function setForm(res: any) {
+	form.value = {
+		enabled: res?.enabled ?? false,
+		scope: res?.scope ?? 'global',
+		requestRequired: res?.requestRequired ?? false,
+		responseRequired: res?.responseRequired ?? true,
+		algorithm: res?.algorithm ?? 'ECDH-P256-AES-256-GCM',
+		keyId: res?.keyId ?? '',
+		serverPublicKey: res?.serverPublicKey ?? '',
+		hasServerPrivateKey: res?.hasServerPrivateKey ?? false,
+		includeUrls: formatUrls(res?.includeUrls),
+		excludeUrls: formatUrls(res?.excludeUrls)
+	};
+}
+
+function formatUrls(urls?: string[]) {
+	return Array.isArray(urls) ? urls.join('\n') : '';
+}
+
+function parseUrls(value: string) {
+	return value
+		.split('\n')
+		.map(e => e.trim())
+		.filter(Boolean);
+}
+
 async function loadConfig() {
 	try {
-		const res = await service.base.sys.encrypt.getConfig();
+		const res = await encryptConfigRequest('/getConfig');
 		if (res) {
-			form.value = {
-				enabled: res.enabled ?? false,
-				scope: res.scope ?? 'global',
-				rsaPublicKey: res.rsaPublicKey ?? '',
-				rsaPrivateKey: res.rsaPrivateKey ?? ''
-			};
+			setForm(res);
 		}
 	} catch (err: any) {
 		console.error('加载配置失败', err);
@@ -90,16 +155,18 @@ async function loadConfig() {
 }
 
 async function handleSave() {
-	if (form.value.enabled && !form.value.rsaPublicKey) {
-		ElMessage.warning('请先生成RSA密钥');
-		return;
-	}
 	saving.value = true;
 	try {
-		await service.base.sys.encrypt.updateConfig({
+		const res = await encryptConfigRequest('/updateConfig', {
 			enabled: form.value.enabled,
-			scope: form.value.scope
+			scope: form.value.scope,
+			requestRequired: form.value.requestRequired,
+			responseRequired: form.value.responseRequired,
+			includeUrls: parseUrls(form.value.includeUrls),
+			excludeUrls: parseUrls(form.value.excludeUrls)
 		});
+		setForm(res);
+		await interfaceEncryption.refresh();
 		ElMessage.success('保存成功');
 	} catch (err: any) {
 		ElMessage.error(err.message || '保存失败');
@@ -110,14 +177,15 @@ async function handleSave() {
 
 async function handleRefresh() {
 	await loadConfig();
+	await interfaceEncryption.refresh();
 	ElMessage.success('刷新成功');
 }
 
 async function handleGenerateKeys() {
-	if (form.value.rsaPublicKey) {
+	if (form.value.keyId) {
 		try {
 			await ElMessageBox.confirm(
-				'重新生成密钥后，已登录的用户需要重新登录才能正常使用。确定要重新生成？',
+				'重新生成密钥后，已打开页面会重新获取公钥，正在发送的请求可能需要重试。确定要重新生成？',
 				'提示',
 				{ type: 'warning' }
 			);
@@ -127,15 +195,24 @@ async function handleGenerateKeys() {
 	}
 	generating.value = true;
 	try {
-		const res = await service.base.sys.encrypt.generateKeys();
-		form.value.rsaPublicKey = res.rsaPublicKey;
-		form.value.rsaPrivateKey = res.rsaPrivateKey;
+		const res = await encryptConfigRequest('/generateKeys');
+		setForm(res);
+		await interfaceEncryption.refresh();
 		ElMessage.success('密钥生成成功');
 	} catch (err: any) {
 		ElMessage.error(err.message || '密钥生成失败');
 	} finally {
 		generating.value = false;
 	}
+}
+
+function encryptConfigRequest(url: string, data?: any) {
+	return service.base.sys.encrypt.request({
+		url,
+		method: 'POST',
+		data,
+		__skipEncrypt: true
+	});
 }
 
 onMounted(() => {
@@ -152,7 +229,7 @@ onMounted(() => {
 	}
 
 	&__form {
-		max-width: 800px;
+		max-width: 860px;
 
 		:deep(.el-radio-group) {
 			display: flex;
@@ -164,7 +241,7 @@ onMounted(() => {
 	&__hint {
 		color: var(--el-text-color-placeholder);
 		font-size: 12px;
-		margin-left: 4px;
+		margin-left: 8px;
 	}
 }
 </style>

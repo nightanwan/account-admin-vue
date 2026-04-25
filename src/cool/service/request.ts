@@ -2,9 +2,12 @@ import axios from 'axios';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { ElMessage } from 'element-plus';
-import { endsWith } from 'lodash-es';
 import { storage } from '/@/cool/utils';
-import { decryptResponse } from '/@/cool/utils/decrypt';
+import {
+	canEncryptBody,
+	interfaceEncryption,
+	isEncryptionRetryMessage
+} from '/@/cool/utils/encrypt';
 import { useBase } from '/$/base';
 import { router } from '../router';
 import { config, isDev } from '/@/config';
@@ -28,7 +31,7 @@ let isRefreshing = false;
 
 // 请求拦截器
 request.interceptors.request.use(
-	(req: any) => {
+	async (req: any) => {
 		const { user } = useBase(); // 获取用户信息
 
 		if (req.url) {
@@ -65,9 +68,9 @@ request.interceptors.request.use(
 				req.headers['Authorization'] = user.token;
 			}
 
-			// 忽略特定请求
-			if (['eps', 'refreshToken'].some(e => endsWith(req.url, e))) {
-				return req;
+			// 忽略特定请求（按路径段精确匹配，避免误伤如 /steps 这种结尾包含 eps 的路径）
+			if (isIgnoredAuthUrl(req.url)) {
+				return prepareEncryptedRequest(req);
 			}
 
 			// 判断 token 是否过期
@@ -88,24 +91,29 @@ request.interceptors.request.use(
 								isRefreshing = false;
 							})
 							.catch(() => {
+								isRefreshing = false;
 								user.logout();
 							});
 					}
 
 					// 返回一个新的 Promise，等待 token 刷新完成
-					return new Promise(resolve => {
-						queue.push(token => {
-							if (req.headers) {
-								req.headers['Authorization'] = token; // 重新设置 token
+					return new Promise((resolve, reject) => {
+						queue.push(async token => {
+							try {
+								if (req.headers) {
+									req.headers['Authorization'] = token; // 重新设置 token
+								}
+								resolve(await prepareEncryptedRequest(req));
+							} catch (err) {
+								reject(err);
 							}
-							resolve(req);
 						});
 					});
 				}
 			}
 		}
 
-		return req;
+		return prepareEncryptedRequest(req);
 	},
 	error => {
 		return Promise.reject(error); // 请求错误处理
@@ -114,25 +122,27 @@ request.interceptors.request.use(
 
 // 响应拦截器
 request.interceptors.response.use(
-	res => {
+	async res => {
 		NProgress.done(); // 结束进度条
 
 		if (!res?.data) {
 			return res;
 		}
 
-		// 检测加密响应并解密
-		if (res.data.encrypted) {
-			const privateKey = storage.get('rsaPrivateKey');
-			if (privateKey) {
-				const decrypted = decryptResponse(res.data, privateKey);
-				if (decrypted !== null) {
-					res.data.data = decrypted;
-					delete res.data.encrypted;
-					delete res.data.aesKey;
-					delete res.data.iv;
-				}
+		try {
+			if (res.data.encrypted) {
+				res.data = await interfaceEncryption.decryptResponse(res.data);
 			}
+		} catch (err: any) {
+			const retry = await retryWithFreshEncryption(res.config, err?.message);
+
+			if (retry) {
+				return retry;
+			}
+
+			return Promise.reject({
+				message: err?.message || '接口响应解密失败'
+			});
 		}
 
 		const { code, data, message } = res.data;
@@ -153,7 +163,14 @@ request.interceptors.response.use(
 
 		if (error.response) {
 			const { status } = error.response;
+			const message = error.response?.data?.message || error.message;
 			const { user } = useBase();
+
+			const retry = await retryWithFreshEncryption(error.config, message);
+
+			if (retry) {
+				return retry;
+			}
 
 			if (status == 401) {
 				user.logout(); // 未授权，登出用户
@@ -179,5 +196,78 @@ request.interceptors.response.use(
 		return Promise.reject({ message: error.response?.data?.message || error.message }); // 返回错误信息
 	}
 );
+
+async function prepareEncryptedRequest(req: any) {
+	if (req.__skipEncrypt) {
+		return req;
+	}
+
+	try {
+		await interfaceEncryption.init();
+	} catch (err) {
+		// 握手失败时降级为明文请求，由后端最终决定是否拒绝
+		console.warn('[encrypt] init failed, fallback to plain request', err);
+		return req;
+	}
+
+	if (!interfaceEncryption.enabled) {
+		return req;
+	}
+
+	if (!req.headers) {
+		req.headers = {};
+	}
+
+	if (interfaceEncryption.shouldSendClientKey(req.url)) {
+		interfaceEncryption.setClientHeader(req.headers);
+	}
+
+	if (interfaceEncryption.shouldEncryptRequestBody(req.url) && canEncryptBody(req.data)) {
+		if (req.__encryptRawData === undefined) {
+			req.__encryptRawData = req.data;
+		}
+
+		req.data = await interfaceEncryption.encryptBody(req.__encryptRawData);
+		setRequestHeader(req.headers, 'Content-Type', 'application/json');
+	}
+
+	return req;
+}
+
+function isIgnoredAuthUrl(url?: string) {
+	if (!url) {
+		return false;
+	}
+
+	const path = url.split('?')[0];
+	const segments = path.split('/').filter(Boolean);
+	const last = segments[segments.length - 1];
+
+	return last === 'eps' || last === 'refreshToken';
+}
+
+async function retryWithFreshEncryption(req: any, message?: string) {
+	if (!req || req.__encryptRetried || !isEncryptionRetryMessage(message)) {
+		return null;
+	}
+
+	req.__encryptRetried = true;
+
+	if (req.__encryptRawData !== undefined) {
+		req.data = req.__encryptRawData;
+	}
+
+	await interfaceEncryption.refresh();
+	return request(req);
+}
+
+function setRequestHeader(headers: any, key: string, value: string) {
+	if (typeof headers?.set === 'function') {
+		headers.set(key, value);
+		return;
+	}
+
+	headers[key] = value;
+}
 
 export { request };

@@ -90,7 +90,12 @@ const form = ref({
 
 async function loadConfig() {
 	try {
-		const res = await service.base.comm.getConfig({ groupCode: GROUP_CODE });
+		const res = await service.base.comm.request({
+			url: '/getConfig',
+			method: 'POST',
+			data: { groupCode: GROUP_CODE },
+			__skipEncrypt: true
+		});
 		if (res) {
 			form.value = {
 				siteName: res.siteName ?? '',
@@ -111,10 +116,15 @@ async function loadConfig() {
 async function handleSave() {
 	saving.value = true;
 	try {
-		await service.base.sys.configGroup.updateConfig({
-			groupCode: GROUP_CODE,
-			groupName: '系统配置',
-			configValue: { ...form.value }
+		await service.base.sys.configGroup.request({
+			url: '/updateConfig',
+			method: 'POST',
+			data: {
+				groupCode: GROUP_CODE,
+				groupName: '系统配置',
+				configValue: { ...form.value }
+			},
+			__skipEncrypt: true
 		});
 		ElMessage.success('保存成功');
 	} catch (err: any) {

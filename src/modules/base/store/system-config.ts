@@ -30,8 +30,13 @@ export const useSystemConfigStore = defineStore('system-config', function () {
 
 	async function load() {
 		try {
-			const res = await service.base.comm.getConfig({
-				groupCode: 'system'
+			const res = await service.base.comm.request({
+				url: '/getConfig',
+				method: 'POST',
+				data: {
+					groupCode: 'system'
+				},
+				__skipEncrypt: true
 			});
 			if (res) {
 				Object.assign(config, { ...DEFAULT_CONFIG, ...res });

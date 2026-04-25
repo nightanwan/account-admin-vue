@@ -16,7 +16,6 @@ export const useUserStore = defineStore('user', function () {
 		expire: number;
 		refreshToken: string;
 		refreshExpire: number;
-		encrypt?: { enabled: boolean; rsaPrivateKey: string };
 	}) {
 		// 请求的唯一标识
 		token.value = data.token;
@@ -24,11 +23,7 @@ export const useUserStore = defineStore('user', function () {
 
 		// 刷新 token 的唯一标识
 		storage.set('refreshToken', data.refreshToken, data.refreshExpire);
-
-		// 存储加密密钥
-		if (data.encrypt?.enabled && data.encrypt?.rsaPrivateKey) {
-			storage.set('rsaPrivateKey', data.encrypt.rsaPrivateKey);
-		}
+		storage.remove('rsaPrivateKey');
 	}
 
 	// 刷新标识

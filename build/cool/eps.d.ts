@@ -1772,9 +1772,14 @@ declare namespace Eps {
 		updateConfig(data?: any): Promise<any>;
 
 		/**
-		 * 生成RSA密钥对
+		 * 生成接口加密密钥对
 		 */
 		generateKeys(data?: any): Promise<any>;
+
+		/**
+		 * 获取接口加密公钥
+		 */
+		publicKey(data?: any): Promise<any>;
 
 		/**
 		 * 获取加密配置
@@ -1784,12 +1789,22 @@ declare namespace Eps {
 		/**
 		 * 权限标识
 		 */
-		permission: { updateConfig: string; generateKeys: string; getConfig: string };
+		permission: {
+			updateConfig: string;
+			generateKeys: string;
+			publicKey: string;
+			getConfig: string;
+		};
 
 		/**
 		 * 权限状态
 		 */
-		_permission: { updateConfig: boolean; generateKeys: boolean; getConfig: boolean };
+		_permission: {
+			updateConfig: boolean;
+			generateKeys: boolean;
+			publicKey: boolean;
+			getConfig: boolean;
+		};
 
 		request: Request;
 	}
