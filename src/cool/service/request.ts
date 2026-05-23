@@ -222,16 +222,35 @@ async function prepareEncryptedRequest(req: any) {
 		interfaceEncryption.setClientHeader(req.headers);
 	}
 
-	if (interfaceEncryption.shouldEncryptRequestBody(req.url) && canEncryptBody(req.data)) {
+	if (
+		interfaceEncryption.shouldEncryptRequestBody(req.url) &&
+		shouldEncryptRequestMethod(req.method) &&
+		canEncryptRequestData(req.data)
+	) {
 		if (req.__encryptRawData === undefined) {
-			req.__encryptRawData = req.data;
+			req.__encryptRawData = normalizeEncryptRequestData(req.data);
 		}
 
-		req.data = await interfaceEncryption.encryptBody(req.__encryptRawData);
+		req.data = await interfaceEncryption.encryptBody(req.__encryptRawData, {
+			method: req.method,
+			url: req.url
+		});
 		setRequestHeader(req.headers, 'Content-Type', 'application/json');
 	}
 
 	return req;
+}
+
+function shouldEncryptRequestMethod(method?: string) {
+	return ['POST', 'PUT', 'PATCH', 'DELETE'].includes(String(method || 'GET').toUpperCase());
+}
+
+function canEncryptRequestData(data: any) {
+	return data === undefined || data === null || canEncryptBody(data);
+}
+
+function normalizeEncryptRequestData(data: any) {
+	return data === undefined || data === null ? {} : data;
 }
 
 function isIgnoredAuthUrl(url?: string) {

@@ -4,20 +4,22 @@ import { config } from '/@/config';
 const ENCRYPTION_VERSION = 1;
 const ENCRYPTION_ALGORITHM = 'ECDH-P256-AES-256-GCM';
 const GCM_TAG_BYTES = 16;
+const NONCE_BYTES = 16;
 const PUBLIC_KEY_URL = '/admin/base/sys/encrypt/publicKey';
 const CLIENT_PUBLIC_KEY_HEADER = 'X-Encrypt-Client-Key';
 
 type EncryptContext = 'request' | 'response';
 
 /**
- * 加密握手配置
- * 仅包含建立加密会话必需的字段，所有"是否加密"的策略由后端权威判定
+ * 客户端启动安全配置
+ * 仅包含建立加密会话和前端安全开关所需的字段，所有"是否加密"的策略由后端权威判定
  */
 export interface HandshakeConfig {
 	enabled: boolean;
 	algorithm: string;
 	keyId: string;
 	serverPublicKey: string;
+	disableDevtool: boolean;
 }
 
 export interface EncryptEnvelope {
@@ -30,6 +32,13 @@ export interface EncryptEnvelope {
 	salt: string;
 	tag: string;
 	clientPublicKey?: string;
+	ts?: number;
+	nonce?: string;
+}
+
+export interface EncryptRequestOptions {
+	method?: string;
+	url?: string;
 }
 
 export class InterfaceEncryptionClient {
@@ -116,7 +125,7 @@ export class InterfaceEncryptionClient {
 		setHeader(headers, CLIENT_PUBLIC_KEY_HEADER, this.clientPublicKeyBase64);
 	}
 
-	async encryptBody(data: any): Promise<EncryptEnvelope | any> {
+	async encryptBody(data: any, options: EncryptRequestOptions = {}): Promise<EncryptEnvelope | any> {
 		if (!this.enabled) {
 			return data;
 		}
@@ -124,6 +133,8 @@ export class InterfaceEncryptionClient {
 		const security = this.assertReady();
 		const iv = crypto.getRandomValues(new Uint8Array(12));
 		const salt = crypto.getRandomValues(new Uint8Array(16));
+		const ts = Date.now();
+		const nonce = bytesToBase64(crypto.getRandomValues(new Uint8Array(NONCE_BYTES)));
 		const key = await this.derivePayloadKey(salt, 'request');
 		const plaintext = this.encoder.encode(JSON.stringify(data ?? {}));
 		const encrypted = new Uint8Array(
@@ -131,7 +142,12 @@ export class InterfaceEncryptionClient {
 				{
 					name: 'AES-GCM',
 					iv: toArrayBuffer(iv),
-					additionalData: this.createAAD('request'),
+					additionalData: this.createAAD('request', {
+						method: options.method,
+						url: options.url,
+						ts,
+						nonce
+					}),
 					tagLength: 128
 				},
 				key,
@@ -150,7 +166,9 @@ export class InterfaceEncryptionClient {
 			data: bytesToBase64(ciphertext),
 			iv: bytesToBase64(iv),
 			salt: bytesToBase64(salt),
-			tag: bytesToBase64(tag)
+			tag: bytesToBase64(tag),
+			ts,
+			nonce
 		};
 	}
 
@@ -306,12 +324,26 @@ export class InterfaceEncryptionClient {
 		);
 	}
 
-	private createAAD(context: EncryptContext) {
+	private createAAD(
+		context: EncryptContext,
+		requestOptions?: EncryptRequestOptions & { ts?: number; nonce?: string }
+	) {
 		const security = this.assertReady();
+		const base = `${ENCRYPTION_ALGORITHM}:${ENCRYPTION_VERSION}:${security.keyId}:${context}`;
+
+		if (context !== 'request') {
+			return toArrayBuffer(this.encoder.encode(base));
+		}
 
 		return toArrayBuffer(
 			this.encoder.encode(
-				`${ENCRYPTION_ALGORITHM}:${ENCRYPTION_VERSION}:${security.keyId}:${context}`
+				[
+					base,
+					normalizeMethod(requestOptions?.method),
+					normalizeUrl(requestOptions?.url),
+					String(requestOptions?.ts),
+					requestOptions?.nonce
+				].join(':')
 			)
 		);
 	}
@@ -361,7 +393,8 @@ function normalizeSecurityConfig(value: any): HandshakeConfig {
 		enabled: Boolean(value?.enabled),
 		algorithm: value?.algorithm || ENCRYPTION_ALGORITHM,
 		keyId: value?.keyId || '',
-		serverPublicKey: value?.serverPublicKey || ''
+		serverPublicKey: value?.serverPublicKey || '',
+		disableDevtool: Boolean(value?.disableDevtool)
 	};
 }
 
@@ -401,6 +434,10 @@ function normalizeUrl(rawUrl?: string) {
 	}
 
 	return pathname || '/';
+}
+
+function normalizeMethod(method?: string) {
+	return String(method || 'GET').toUpperCase();
 }
 
 function setHeader(headers: any, key: string, value: string) {

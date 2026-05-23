@@ -41,6 +41,13 @@
 				>
 			</el-form-item>
 
+			<el-form-item label="禁止前端调试">
+				<el-switch v-model="form.disableDevtool" />
+				<span class="tab-security__hint"
+					>开启后前端会阻止 F12、右键菜单和常见开发者工具调试，仅用于提高查看门槛；关闭后刷新页面生效</span
+				>
+			</el-form-item>
+
 			<el-form-item label="协议算法">
 				<el-input v-model="form.algorithm" readonly />
 			</el-form-item>
@@ -97,6 +104,7 @@
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCool } from '/@/cool';
+import { applyDevtoolProtection } from '/@/cool/utils/devtool';
 import { interfaceEncryption } from '/@/cool/utils/encrypt';
 
 const { service } = useCool();
@@ -106,6 +114,7 @@ const form = ref({
 	scope: 'global' as 'global' | 'partial',
 	requestRequired: false,
 	responseRequired: true,
+	disableDevtool: false,
 	algorithm: 'ECDH-P256-AES-256-GCM',
 	keyId: '',
 	serverPublicKey: '',
@@ -123,6 +132,7 @@ function setForm(res: any) {
 		scope: res?.scope ?? 'global',
 		requestRequired: res?.requestRequired ?? false,
 		responseRequired: res?.responseRequired ?? true,
+		disableDevtool: res?.disableDevtool ?? false,
 		algorithm: res?.algorithm ?? 'ECDH-P256-AES-256-GCM',
 		keyId: res?.keyId ?? '',
 		serverPublicKey: res?.serverPublicKey ?? '',
@@ -162,11 +172,13 @@ async function handleSave() {
 			scope: form.value.scope,
 			requestRequired: form.value.requestRequired,
 			responseRequired: form.value.responseRequired,
+			disableDevtool: form.value.disableDevtool,
 			includeUrls: parseUrls(form.value.includeUrls),
 			excludeUrls: parseUrls(form.value.excludeUrls)
 		});
 		setForm(res);
 		await interfaceEncryption.refresh();
+		await applyDevtoolProtection(res?.disableDevtool);
 		ElMessage.success('保存成功');
 	} catch (err: any) {
 		ElMessage.error(err.message || '保存失败');
