@@ -27,13 +27,36 @@ const securityRef = ref();
 
 <style lang="scss" scoped>
 .config-group {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	box-sizing: border-box;
+	overflow: hidden;
 	padding: 20px;
 	background: var(--el-bg-color);
 	border-radius: 6px;
 
 	&__tabs {
+		display: flex;
+		flex: 1;
+		min-height: 0;
+
+		:deep(.el-tabs__header) {
+			flex: 0 0 auto;
+		}
+
 		:deep(.el-tabs__content) {
+			flex: 1;
+			min-height: 0;
+			box-sizing: border-box;
+			overflow-y: auto;
 			padding-top: 10px;
+			padding-right: 8px;
+		}
+
+		:deep(.el-tab-pane) {
+			min-height: 100%;
 		}
 	}
 }

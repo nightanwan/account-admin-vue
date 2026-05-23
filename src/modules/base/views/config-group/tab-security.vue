@@ -91,6 +91,26 @@
 				/>
 			</el-form-item>
 
+			<el-form-item label="请求明文路径">
+				<el-input
+					v-model="form.requestExcludeUrls"
+					type="textarea"
+					:rows="4"
+					placeholder="/admin/dingtalk/callback"
+				/>
+				<span class="tab-security__hint">这些接口不强制请求体加密，适合第三方平台回调</span>
+			</el-form-item>
+
+			<el-form-item label="响应明文路径">
+				<el-input
+					v-model="form.responseExcludeUrls"
+					type="textarea"
+					:rows="4"
+					placeholder="/admin/dingtalk/callback"
+				/>
+				<span class="tab-security__hint">这些接口响应保持明文，适合需要固定响应格式的第三方回调</span>
+			</el-form-item>
+
 			<el-form-item label="生成密钥">
 				<el-button type="primary" @click="handleGenerateKeys" :loading="generating">
 					{{ form.keyId ? '重新生成密钥' : '生成密钥' }}
@@ -120,7 +140,9 @@ const form = ref({
 	serverPublicKey: '',
 	hasServerPrivateKey: false,
 	includeUrls: '',
-	excludeUrls: ''
+	excludeUrls: '',
+	requestExcludeUrls: '',
+	responseExcludeUrls: ''
 });
 
 const saving = ref(false);
@@ -138,7 +160,9 @@ function setForm(res: any) {
 		serverPublicKey: res?.serverPublicKey ?? '',
 		hasServerPrivateKey: res?.hasServerPrivateKey ?? false,
 		includeUrls: formatUrls(res?.includeUrls),
-		excludeUrls: formatUrls(res?.excludeUrls)
+		excludeUrls: formatUrls(res?.excludeUrls),
+		requestExcludeUrls: formatUrls(res?.requestExcludeUrls),
+		responseExcludeUrls: formatUrls(res?.responseExcludeUrls)
 	};
 }
 
@@ -174,7 +198,9 @@ async function handleSave() {
 			responseRequired: form.value.responseRequired,
 			disableDevtool: form.value.disableDevtool,
 			includeUrls: parseUrls(form.value.includeUrls),
-			excludeUrls: parseUrls(form.value.excludeUrls)
+			excludeUrls: parseUrls(form.value.excludeUrls),
+			requestExcludeUrls: parseUrls(form.value.requestExcludeUrls),
+			responseExcludeUrls: parseUrls(form.value.responseExcludeUrls)
 		});
 		setForm(res);
 		await interfaceEncryption.refresh();
