@@ -7,6 +7,13 @@ const GCM_TAG_BYTES = 16;
 const NONCE_BYTES = 16;
 const PUBLIC_KEY_URL = '/admin/base/sys/encrypt/publicKey';
 const CLIENT_PUBLIC_KEY_HEADER = 'X-Encrypt-Client-Key';
+const ENCRYPTION_RETRY_ERROR_CODES = [
+	'ENCRYPT_DECRYPT_FAILED',
+	'ENCRYPT_KEY_EXPIRED',
+	'ENCRYPT_REQUEST_REQUIRED',
+	'ENCRYPT_RESPONSE_REQUIRED',
+	'ENCRYPT_CLIENT_KEY_INVALID'
+];
 
 type EncryptContext = 'request' | 'response';
 
@@ -375,10 +382,14 @@ export function canEncryptBody(data: any) {
 	return true;
 }
 
-export function isEncryptionRetryMessage(message?: string) {
+export function isEncryptionRetryMessage(message?: string, errorCode?: string) {
+	if (errorCode && ENCRYPTION_RETRY_ERROR_CODES.includes(errorCode)) {
+		return true;
+	}
+
 	return Boolean(
 		message &&
-			/请求解密失败|加密配置|加密密钥|要求加密请求|要求加密响应|key expired/i.test(message)
+			/请求解密失败|请求安全校验未通过|加密配置|加密密钥|要求加密请求|要求加密响应|key expired/i.test(message)
 	);
 }
 

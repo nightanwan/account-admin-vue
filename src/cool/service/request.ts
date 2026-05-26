@@ -145,7 +145,13 @@ request.interceptors.response.use(
 			});
 		}
 
-		const { code, data, message } = res.data;
+		const { code, data, message, errorCode } = res.data;
+
+		const retry = await retryWithFreshEncryption(res.config, message, errorCode);
+
+		if (retry) {
+			return retry;
+		}
 
 		if (!code) {
 			return res.data; // 返回数据
@@ -155,7 +161,7 @@ request.interceptors.response.use(
 			case 1000:
 				return data; // 成功返回数据
 			default:
-				return Promise.reject({ code, message }); // 处理错误
+				return Promise.reject({ code, message, errorCode }); // 处理错误
 		}
 	},
 	async error => {
@@ -164,9 +170,10 @@ request.interceptors.response.use(
 		if (error.response) {
 			const { status } = error.response;
 			const message = error.response?.data?.message || error.message;
+			const errorCode = error.response?.data?.errorCode;
 			const { user } = useBase();
 
-			const retry = await retryWithFreshEncryption(error.config, message);
+			const retry = await retryWithFreshEncryption(error.config, message, errorCode);
 
 			if (retry) {
 				return retry;
@@ -265,8 +272,8 @@ function isIgnoredAuthUrl(url?: string) {
 	return last === 'eps' || last === 'refreshToken';
 }
 
-async function retryWithFreshEncryption(req: any, message?: string) {
-	if (!req || req.__encryptRetried || !isEncryptionRetryMessage(message)) {
+async function retryWithFreshEncryption(req: any, message?: string, errorCode?: string) {
+	if (!req || req.__encryptRetried || !isEncryptionRetryMessage(message, errorCode)) {
 		return null;
 	}
 

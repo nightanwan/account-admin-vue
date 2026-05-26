@@ -130,9 +130,9 @@ import { interfaceEncryption } from '/@/cool/utils/encrypt';
 const { service } = useCool();
 
 const form = ref({
-	enabled: false,
+	enabled: true,
 	scope: 'global' as 'global' | 'partial',
-	requestRequired: false,
+	requestRequired: true,
 	responseRequired: true,
 	disableDevtool: false,
 	algorithm: 'ECDH-P256-AES-256-GCM',
@@ -150,9 +150,9 @@ const generating = ref(false);
 
 function setForm(res: any) {
 	form.value = {
-		enabled: res?.enabled ?? false,
+		enabled: res?.enabled ?? true,
 		scope: res?.scope ?? 'global',
-		requestRequired: res?.requestRequired ?? false,
+		requestRequired: res?.requestRequired ?? true,
 		responseRequired: res?.responseRequired ?? true,
 		disableDevtool: res?.disableDevtool ?? false,
 		algorithm: res?.algorithm ?? 'ECDH-P256-AES-256-GCM',
