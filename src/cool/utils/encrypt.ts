@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { gunzipSync } from 'fflate';
 import { config } from '/@/config';
 
 const ENCRYPTION_VERSION = 1;
@@ -34,6 +35,7 @@ export interface EncryptEnvelope {
 	v: typeof ENCRYPTION_VERSION;
 	alg: typeof ENCRYPTION_ALGORITHM;
 	kid: string;
+	zip?: 'gzip';
 	data: string;
 	iv: string;
 	salt: string;
@@ -200,21 +202,25 @@ export class InterfaceEncryptionClient {
 		const tag = base64ToBytes(body.tag);
 		const key = await this.derivePayloadKey(salt, 'response');
 		const encrypted = concatBytes(ciphertext, tag);
-		const plaintext = await crypto.subtle.decrypt(
-			{
-				name: 'AES-GCM',
-				iv: toArrayBuffer(iv),
-				additionalData: this.createAAD('response'),
-				tagLength: 128
-			},
-			key,
-			toArrayBuffer(encrypted)
+		const plaintext = new Uint8Array(
+			await crypto.subtle.decrypt(
+				{
+					name: 'AES-GCM',
+					iv: toArrayBuffer(iv),
+					additionalData: this.createAAD('response'),
+					tagLength: 128
+				},
+				key,
+				toArrayBuffer(encrypted)
+			)
 		);
+		const payload = decodeResponsePayload(plaintext, body.zip, this.decoder);
 		const {
 			encrypted: _encrypted,
 			v: _v,
 			alg: _alg,
 			kid: _kid,
+			zip: _zip,
 			iv: _iv,
 			salt: _salt,
 			tag: _tag,
@@ -222,9 +228,19 @@ export class InterfaceEncryptionClient {
 			...rest
 		} = body;
 
+		void _encrypted;
+		void _v;
+		void _alg;
+		void _kid;
+		void _zip;
+		void _iv;
+		void _salt;
+		void _tag;
+		void _data;
+
 		return {
 			...rest,
-			data: JSON.parse(this.decoder.decode(plaintext))
+			data: JSON.parse(payload)
 		};
 	}
 
@@ -397,6 +413,18 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
 	const buffer = new ArrayBuffer(bytes.byteLength);
 	new Uint8Array(buffer).set(bytes);
 	return buffer;
+}
+
+function decodeResponsePayload(bytes: Uint8Array, zip: string | undefined, decoder: TextDecoder) {
+	if (!zip) {
+		return decoder.decode(bytes);
+	}
+
+	if (zip !== 'gzip') {
+		throw new Error('接口响应压缩格式不支持');
+	}
+
+	return decoder.decode(gunzipSync(bytes));
 }
 
 function normalizeSecurityConfig(value: any): HandshakeConfig {
